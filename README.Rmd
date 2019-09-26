@@ -1,0 +1,20 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# ich_detection_challenge
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of ich_detection_challenge is some code to analyze Kaggle RSNA intracranial hemorrhage detection challenge: https://kaggle.com/c/rsna-intracranial-hemorrhage-detection/data.  
+
