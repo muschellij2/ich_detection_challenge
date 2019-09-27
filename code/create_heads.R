@@ -20,7 +20,7 @@ df = all_df
 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
-  ifold = 1
+  ifold = 74
 }
 
 df = df[ df$fold == ifold,]
@@ -88,8 +88,8 @@ for (iid in uids) {
     
     # ind = seq_along(paths)
     # add_instance = function(file, index) {
-    #   dcmodify(file = file,
-    #            frontopts = paste0('-i "(0020,0013)=', index, '"')
+    #   dcmtk::dcmodify(file = file,
+    #            frontopts = paste0('--no-backup -i "(0020,0013)=', index, '"')
     #   )
     #   bakfile = paste0(file, ".bak")
     #   if (file.exists(bakfile)) {
@@ -107,7 +107,28 @@ for (iid in uids) {
     nii = d_res$nii_after
     stopifnot(length(nii) == 1)
     img = readnii(nii[1])
-    stopifnot(all(dim(img)[1:2] == 512))
+    # 3786 fails at 512x512
+    # "nifti/ID_2b9e0826-ID_9224996075.nii.gz"
+    # 8011 as well - not square too
+    # 8011 is flipped
+    # Make sure same dimensions!
+    dimg = dim(img)[1:2]
+    dim_512 = all(dimg == 512)
+    if (!dim_512) {
+      dims = lapply(paths, function(x) {
+        dim(oro.dicom::readDICOMFile(x)$img)[1:2]
+      })
+      all_equal_dims = all(sapply(dims, function(x) {
+        all(x == dims[[1]])
+      }))
+      # %in% not == for 8011 as LR flipping
+      stopifnot(all(dimg %in% dims[[1]]))
+      # udim = unique(dim(img)[1:2])
+      # square = length(udim) == 1
+      # stopifnot(square)
+      # stopifnot(all(dims == udim))
+    }
+
     stopifnot(dim(img)[3] == nrow(run_df))
     stopifnot(is.na(dim(img)[4]))
     img = rescale_img(img)
@@ -115,7 +136,7 @@ for (iid in uids) {
     
     
     ss = CT_Skull_Strip(
-      img, 
+      outfile, 
       outfile = ss_file,
       maskfile = maskfile,
       keepmask = TRUE)
