@@ -5,7 +5,14 @@ library(divest)
 library(ichseg)
 library(dplyr)
 library(fs)
+library(dcmtk)
 setwd(here::here())
+
+sub_bracket = function(x) {
+  x = sub("^\\[", "", x)
+  x = sub("\\]$", "", x)
+  x = trimws(x)
+}
 
 tmp = sapply(c("ss", "mask", "nifti"), dir.create, 
              showWarnings = FALSE)
@@ -57,7 +64,7 @@ for (iid in uids) {
   }
   run_df = run_df %>% 
     filter(n_index == 1)
-  
+  # make sure for ordering
   
   if (!all(file.exists(c(ss_file, maskfile, outfile)))) {
     
@@ -67,6 +74,7 @@ for (iid in uids) {
       arrange(PatientID, StudyInstanceUID, SeriesInstanceUID, z) %>% 
       ungroup() %>% 
       mutate(slice_order = seq(n()))
+    stopifnot(all(diff(run_df$z) >= 0))
     
     tdir = tempfile()
     dir.create(tdir)
@@ -86,17 +94,22 @@ for (iid in uids) {
     
     stopifnot(all(basename(paths) == basename(run_df$file)))
     
-    # ind = seq_along(paths)
-    # add_instance = function(file, index) {
-    #   dcmtk::dcmodify(file = file,
-    #            frontopts = paste0('--no-backup -i "(0020,0013)=', index, '"')
-    #   )
-    #   bakfile = paste0(file, ".bak")
-    #   if (file.exists(bakfile)) {
-    #     file.remove(bakfile)
-    #   }
-    # }
-    # res = mapply(add_instance, paths, ind)
+    ind = seq_along(paths)
+    add_instance = function(file, index) {
+      dcmtk::dcmodify(
+        file = file,
+        frontopts = paste0('-i "(0020,0013)=', index, '"')
+      )
+      hdr = read_dicom_header(file)
+      new_inst = as.numeric(sub_bracket(hdr$value[hdr$name == "InstanceNumber"]))
+      stopifnot(new_inst == index)
+      print(new_inst)
+      bakfile = paste0(file, ".bak")
+      if (file.exists(bakfile)) {
+        file.remove(bakfile)
+      }
+    }
+    res = mapply(add_instance, paths, ind)
     
     d_res = dcm2nii(basedir = tdir,
                     opts = paste0(
@@ -105,6 +118,8 @@ for (iid in uids) {
                       if (stack_data) "-m y",
                       " -z i -f %p_%t_%s"))
     nii = d_res$nii_after
+    # need to remove these
+    nii = nii[ !grepl("(Tilt|Eq)", nii)]
     stopifnot(length(nii) == 1)
     img = readnii(nii[1])
     # 3786 fails at 512x512
