@@ -1,7 +1,7 @@
 rm(list = ls())
 library(dcm2niir)
-library(neurobase)
 library(divest)
+library(neurobase)
 library(ichseg)
 library(dplyr)
 library(fs)
@@ -22,10 +22,6 @@ tmp = sapply(c("ss", "mask", "nifti"), dir.create,
 n_folds = 200
 
 df = readr::read_rds("wide_headers_with_folds.rds")
-df = df %>% 
-  mutate(pngfile = file.path("png", 
-                             sub("[.]nii.gz", ".png", 
-                                 basename(outfile))))
 all_df = df
 
 df = all_df
@@ -55,6 +51,7 @@ for (iid in uids) {
   ss_file = unique(run_df$ss_file)
   maskfile = unique(run_df$maskfile)
   outfile = unique(run_df$outfile)
+  alt_outfile = unique(run_df$alt_outfile)
   pngfile = unique(run_df$pngfile)
   ss_robust_file = unique(run_df$ss_robust_file)
   stopifnot(length(ss_file) == 1,
@@ -135,14 +132,21 @@ for (iid in uids) {
                       " -z i -f %p_%t_%s"))
     nii = d_res$nii_after
     # need to remove these
-    nii = nii[ !grepl("(Tilt|Eq)", nii)]
+    alt = grepl("(Tilt|Eq)", nii)
+    if (any(alt)) {
+      alt_nii = nii[alt]
+      alt_img = readnii(alt_nii[1])
+      alt_img = rescale_img(alt_img)
+    }
+    nii = nii[ !alt]
     stopifnot(length(nii) == 1)
     img = readnii(nii[1])
     zdim = max(diff(run_df$z))
     zdim = sort(table(round(diff(run_df$z), 2)), decreasing = TRUE)
+    zdim = as.numeric(names(zdim))
     # should probably do this:
     # due to "ID_02c48e85-ID_bd2131d216
-    # pixdim(img)[4] = zdim
+    pixdim(img)[4] = zdim[1]
     
     # ID_5d81e0ab-ID_e32965796b sent to dcm2niix rorden
     # ID of ID_5d81e0ab-ID_e32965796b is 8011
@@ -172,6 +176,10 @@ for (iid in uids) {
     stopifnot(is.na(dim(img)[4]))
     img = rescale_img(img)
     writenii(img, outfile)
+    
+    if (any(alt)) {
+      writenii(alt_img, alt_outfile)
+    }
     
     # may need robust:
     # ID_173a2d6e-ID_4e2089d46f.nii.gz

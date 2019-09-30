@@ -36,10 +36,15 @@ id = df %>%
   arrange(PatientID, StudyInstanceUID, SeriesInstanceUID) %>% 
   distinct() %>% 
   mutate(index = seq(n()),
-        ss_file = file.path("ss", paste0(scan_id, ".nii.gz")),
-        ss_robust_file  = file.path("ss_robust", paste0(scan_id, ".nii.gz")),
-        maskfile = file.path("mask", paste0(scan_id, ".nii.gz")),
-        outfile = file.path("nifti", paste0(scan_id, ".nii.gz")))
+         ss_file = file.path("ss", paste0(scan_id, ".nii.gz")),
+         ss_robust_file  = file.path("ss_robust", paste0(scan_id, ".nii.gz")),
+         maskfile = file.path("mask", paste0(scan_id, ".nii.gz")),
+         outfile = file.path("nifti", paste0(scan_id, ".nii.gz")),
+         alt_outfile = file.path("eq_nifti", paste0(scan_id, ".nii.gz")),
+         reg_file = file.path("reg", paste0(scan_id, ".nii.gz")),
+         reg_mat = file.path("reg", paste0(scan_id, ".mat")),
+         pngfile = file.path("png", sub("[.]nii.gz", ".png", basename(outfile)))
+  )
 
 n_div = (ceiling(nrow(id) / n_folds))
 id = id %>% 
@@ -68,24 +73,24 @@ dup_data =  df %>%
 
 dup_data = dup_data %>% 
   select(ID, file, group, SeriesInstanceUID, PatientID, n_index, 
-         fold, x, y, z, index) %>% 
-
-
-##################################
+         fold, x, y, z, index)
+  
+  
+  ##################################
 # Need to check on these IDs for each fold - must subset
 ##################################
 check_folds = dup_data %>% 
   ungroup() %>% 
   select(index, fold) %>% 
   distinct()
-  
+
 
 # check if any duplications are all train or test!
 # Make sure not crossing the train/test designation
 check = df %>%   
   group_by(SeriesInstanceUID, PatientID) %>% 
   summarise(dup = !all(n_index == 1),
-         pct_train = mean(group == "train")) %>% 
+            pct_train = mean(group == "train")) %>% 
   ungroup()
 # make sure all train or all test (no half brain)
 stopifnot(all(check$pct_train %in% c(0, 1)))
