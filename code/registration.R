@@ -28,17 +28,20 @@ reg_func = function(infile, outfile, omat, template) {
 
 df = readr::read_rds("wide_headers_with_folds.rds")
 all_df = df
+
+df = all_df
 n_folds = 200
 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
-  ifold = 74
+  ifold = 1
 }
 
 df = df %>% 
   filter(fold == ifold) %>% 
   select(fold, index, scan_id, outfile, 
          reg_file,
+         reg_mat,
          ss_file, ss_robust_file) %>% 
   distinct()
 
