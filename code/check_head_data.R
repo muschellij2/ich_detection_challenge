@@ -37,6 +37,7 @@ id = df %>%
   distinct() %>% 
   mutate(index = seq(n()),
         ss_file = file.path("ss", paste0(scan_id, ".nii.gz")),
+        ss_robust_file  = file.path("ss_robust", paste0(scan_id, ".nii.gz")),
         maskfile = file.path("mask", paste0(scan_id, ".nii.gz")),
         outfile = file.path("nifti", paste0(scan_id, ".nii.gz")))
 

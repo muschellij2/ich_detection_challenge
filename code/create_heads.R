@@ -8,6 +8,8 @@ library(fs)
 library(dcmtk)
 setwd(here::here())
 
+add_instance_number = TRUE
+
 sub_bracket = function(x) {
   x = sub("^\\[", "", x)
   x = sub("\\]$", "", x)
@@ -20,11 +22,15 @@ tmp = sapply(c("ss", "mask", "nifti"), dir.create,
 n_folds = 200
 
 df = readr::read_rds("wide_headers_with_folds.rds")
-
+df = df %>% 
+  mutate(pngfile = file.path("png", 
+                             sub("[.]nii.gz", ".png", 
+                                 basename(outfile))))
 all_df = df
 
 df = all_df
 
+# ID_02c48e85-ID_bd2131d216 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
   ifold = 74
@@ -33,12 +39,14 @@ if (is.na(ifold)) {
 df = df[ df$fold == ifold,]
 
 
-iid = 1
 
 uids = unique(df$index)
+iid = uids[1]
+
 # iid =102
 #iid = 219
 for (iid in uids) {
+  
   print(iid)
   run_df = df[ df$index == iid, ]
   
@@ -47,11 +55,13 @@ for (iid in uids) {
   ss_file = unique(run_df$ss_file)
   maskfile = unique(run_df$maskfile)
   outfile = unique(run_df$outfile)
+  pngfile = unique(run_df$pngfile)
+  ss_robust_file = unique(run_df$ss_robust_file)
   stopifnot(length(ss_file) == 1,
             length(maskfile) == 1,
+            length(ss_robust_file) == 1,
             length(outfile) == 1)
-  pngfile = file.path("png", 
-                      sub("[.]nii.gz", ".png", basename(outfile)))
+  
   
   
   
@@ -73,12 +83,13 @@ for (iid in uids) {
              x, y, z, everything()) %>% 
       arrange(PatientID, StudyInstanceUID, SeriesInstanceUID, z) %>% 
       ungroup() %>% 
-      mutate(slice_order = seq(n()))
+      mutate(instance_number = seq(n()))
     stopifnot(all(diff(run_df$z) >= 0))
     
     tdir = tempfile()
     dir.create(tdir)
     file.copy(run_df$file, tdir)
+    
     x = divest::scanDicom(path = tdir)
     stack_data = FALSE
     if (nrow(x) > 1) {
@@ -94,22 +105,27 @@ for (iid in uids) {
     
     stopifnot(all(basename(paths) == basename(run_df$file)))
     
-    ind = seq_along(paths)
-    add_instance = function(file, index) {
-      dcmtk::dcmodify(
-        file = file,
-        frontopts = paste0('-i "(0020,0013)=', index, '"')
-      )
-      hdr = read_dicom_header(file)
-      new_inst = as.numeric(sub_bracket(hdr$value[hdr$name == "InstanceNumber"]))
-      stopifnot(new_inst == index)
-      print(new_inst)
-      bakfile = paste0(file, ".bak")
-      if (file.exists(bakfile)) {
-        file.remove(bakfile)
+    tmp_paths = file.path(tdir, basename(run_df$file))
+    if (add_instance_number) {
+      ind = seq_along(tmp_paths)
+      add_instance = function(file, index) {
+        dcmtk::dcmodify(
+          file = file,
+          frontopts = paste0('-i "(0020,0013)=', index, '"'),
+          verbose = FALSE
+        )
+        hdr = read_dicom_header(file, verbose = FALSE)
+        new_inst = as.numeric(sub_bracket(hdr$value[hdr$name == "InstanceNumber"]))
+        stopifnot(new_inst == index)
+        print(new_inst)
+        bakfile = paste0(file, ".bak")
+        if (file.exists(bakfile)) {
+          file.remove(bakfile)
+        }
       }
+      res = mapply(add_instance, tmp_paths, ind)
     }
-    res = mapply(add_instance, paths, ind)
+    
     
     d_res = dcm2nii(basedir = tdir,
                     opts = paste0(
@@ -122,6 +138,14 @@ for (iid in uids) {
     nii = nii[ !grepl("(Tilt|Eq)", nii)]
     stopifnot(length(nii) == 1)
     img = readnii(nii[1])
+    zdim = max(diff(run_df$z))
+    zdim = sort(table(round(diff(run_df$z), 2)), decreasing = TRUE)
+    # should probably do this:
+    # due to "ID_02c48e85-ID_bd2131d216
+    # pixdim(img)[4] = zdim
+    
+    # ID_5d81e0ab-ID_e32965796b sent to dcm2niix rorden
+    # ID of ID_5d81e0ab-ID_e32965796b is 8011
     # 3786 fails at 512x512
     # "nifti/ID_2b9e0826-ID_9224996075.nii.gz"
     # 8011 as well - not square too
@@ -143,19 +167,26 @@ for (iid in uids) {
       # stopifnot(square)
       # stopifnot(all(dims == udim))
     }
-
+    
     stopifnot(dim(img)[3] == nrow(run_df))
     stopifnot(is.na(dim(img)[4]))
     img = rescale_img(img)
     writenii(img, outfile)
     
-    
+    # may need robust:
+    # ID_173a2d6e-ID_4e2089d46f.nii.gz
     ss = CT_Skull_Strip(
       outfile, 
       outfile = ss_file,
       maskfile = maskfile,
       keepmask = TRUE)
     
+  }
+  
+  if (!file.exists( ss_robust_file) & file.exists(outfile)) {
+    ss = CT_Skull_Strip_smooth(
+      outfile, 
+      outfile = ss_robust_file)
   }
   
   if (all(file.exists(c(ss_file, maskfile, outfile)))) {

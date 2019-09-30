@@ -26,6 +26,13 @@ then
   
 fi
 
+if [[ ! -f ../wide_headers_with_folds.rds ]];
+then 
+  Rnosave check_head_data.R -N CHECK \
+    -l mem_free=5G,h_vmem=7G
+fi
+
+
 Rnosave create_heads.R -N SS  -t 1-200 \
     -l mem_free=8G,h_vmem=10G
     
