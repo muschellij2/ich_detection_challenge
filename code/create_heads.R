@@ -29,7 +29,7 @@ df = all_df
 # ID_02c48e85-ID_bd2131d216 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
-  ifold = 74
+  ifold = 132
 }
 
 df = df[ df$fold == ifold,]
@@ -142,10 +142,14 @@ for (iid in uids) {
     stopifnot(length(nii) == 1)
     img = readnii(nii[1])
     zdim = max(diff(run_df$z))
-    zdim = sort(table(round(diff(run_df$z), 2)), decreasing = TRUE)
+    diffs = round(diff(run_df$z), 2)
+    diffs = diffs[diffs > 0]
+    zdim = sort(table(diffs), decreasing = TRUE)
     zdim = as.numeric(names(zdim))
     # should probably do this:
     # due to "ID_02c48e85-ID_bd2131d216
+    # 6512 - weird
+    # "ID_4b4643db-ID_99ef75869d"
     pixdim(img)[4] = zdim[1]
     
     # ID_5d81e0ab-ID_e32965796b sent to dcm2niix rorden
