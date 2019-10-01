@@ -29,7 +29,7 @@ df = all_df
 # ID_02c48e85-ID_bd2131d216 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
-  ifold = 133
+  ifold = 147
 }
 
 df = df[ df$fold == ifold,]
@@ -38,7 +38,7 @@ df = df[ df$fold == ifold,]
 
 uids = unique(df$index)
 iid = uids[1]
-
+# iid = 15977
 # iid =102
 #iid = 219
 for (iid in uids) {
