@@ -1,11 +1,6 @@
 rm(list = ls())
-library(dcm2niir)
-library(divest)
 library(neurobase)
-library(ichseg)
 library(dplyr)
-library(fs)
-library(dcmtk)
 setwd(here::here())
 
 add_instance_number = TRUE

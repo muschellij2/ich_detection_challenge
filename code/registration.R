@@ -1,12 +1,8 @@
 # library(tidyverse)
 # library(readr)
 library(dplyr)
-library(dcm2niir)
-library(tibble)
-library(tidyr)
 library(neurobase)
 library(extrantsr)
-library(ichseg)
 setwd(here::here())
 
 reg_func = function(infile, outfile, omat, template) {
