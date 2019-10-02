@@ -205,10 +205,20 @@ for (iid in uids) {
   }
   
   if (!file.exists( ss_robust_file) & file.exists(outfile)) {
+    val = 1024
+    img = readnii(outfile) + val
+    tfile = tempfile(fileext = ".nii.gz")
     ss = CT_Skull_Strip_smooth(
-      outfile, 
-      outfile = ss_robust_file,
-      lthresh = -10)
+      img, 
+      outfile = tfile,
+      lthresh = 0 + val,
+      uthresh = 100 + val,
+      mask_to_background = FALSE)
+    rbmask = sub("[.]nii", "_Mask.nii", tfile)
+    mask = readnii(rbmask)
+    xss = mask_img(img, mask) - val
+    writenii(ss, ss_robust_file)
+    writenii(rbmask, robust_maskfile)
   }
   
   if (all(file.exists(c(ss_file, maskfile, outfile)))) {
