@@ -16,6 +16,14 @@ sub_bracket = function(x) {
   x = trimws(x)
 }
 
+head_size = function(x) {
+  res = fslr::fslhd(x, verbose = FALSE)
+  hdr = fslr::fslhd.parse(res)
+  pdim = as.numeric(hdr["pixdim3",])
+  nslices = as.numeric( hdr["dim3",])
+  pdim*nslices
+}
+
 tmp = sapply(c("ss", "mask", "nifti"), dir.create, 
              showWarnings = FALSE)
 
@@ -74,6 +82,17 @@ for (iid in uids) {
   run_df = run_df %>% 
     filter(n_index == 1)
   # make sure for ordering
+  
+  # check head size for small things need to rerun
+  if (file.exists(outfile)) {
+    hs = head_size(outfile)
+    if (hs < 100) {
+      file.remove(c(ss_file, maskfile, outfile, pngfile, 
+                    robust_pngfile,
+                    ss_robust_file,
+                    robust_maskfile))
+    }
+  }
   
   if (!all(file.exists(c(ss_file, maskfile, outfile)))) {
     
@@ -152,7 +171,7 @@ for (iid in uids) {
     img = readnii(nii[1])
     zdim = max(diff(run_df$z))
     diffs = round(diff(run_df$z), 2)
-    diffs = diffs[diffs > 0]
+    diffs = diffs[diffs > 0.2]
     zdim = sort(table(diffs), decreasing = TRUE)
     zdim = as.numeric(names(zdim))
     # should probably do this:
@@ -160,6 +179,9 @@ for (iid in uids) {
     # 6512 - weird
     # "ID_4b4643db-ID_99ef75869d"
     pixdim(img)[4] = zdim[1]
+    if (zdim[1]*nsli(img) < 100) {
+      warning("probably flat head!! Too small z-dimensions")
+    }
     
     # ID_5d81e0ab-ID_e32965796b sent to dcm2niix rorden
     # ID of ID_5d81e0ab-ID_e32965796b is 8011
