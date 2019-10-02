@@ -35,7 +35,7 @@ if (is.na(ifold)) {
 
 df = df %>% 
   filter(fold == ifold) %>% 
-  select(fold, index, scan_id, outfile, 
+  select(fold, index, scan_id, outfile, maskfile,
          reg_file,
          reg_mat,
          ss_file, ss_robust_file) %>% 
@@ -55,10 +55,17 @@ for (iid in uids) {
   
   infile = run_df$ss_file
   outfile = run_df$reg_file
+  maskfile = run_df$maskfile
   omat = run_df$reg_mat
+  # img = readnii(infile)
+  # mask = readnii(maskfile)
+  # masked = mask_img(img + 1024, mask)
+  # bc = bias_correct(masked, mask = mask, correction="N4")
+  # bci = mask_img(bc, mask) - 1024
   if (file.exists(infile)) {
     if (!all(file.exists(c(omat, outfile)))) {
       out = reg_func(infile, outfile, omat, template)
     }
   }
+  
 }

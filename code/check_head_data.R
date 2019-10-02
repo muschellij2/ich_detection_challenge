@@ -57,12 +57,45 @@ df = left_join(df, id)
 # check how many slices at same spot
 ##################################
 df = df %>%   
-  group_by(SeriesInstanceUID, PatientID, x, y, z) %>% 
-  mutate(n_index = seq(n())) %>% 
+  arrange(PatientID, StudyInstanceUID, SeriesInstanceUID, z) %>% 
+  group_by(PatientID, StudyInstanceUID, SeriesInstanceUID) %>% 
+  mutate(instance_number = seq(n())) %>% 
   ungroup()
+
+df = df %>%   
+  group_by(PatientID, SeriesInstanceUID, x, y, z) %>% 
+  mutate(repeat_index = seq(n())) %>% 
+  ungroup()
+
+##################################
+# Sort the data
+##################################
+df = df %>% 
+  arrange(PatientID, StudyInstanceUID, SeriesInstanceUID, x, y, z) 
+
 
 readr::write_rds(df, "wide_headers_with_folds.rds")
 
+hdr = readr::read_rds("wide_headers_with_folds.rds")
+
+outcomes = readr::read_rds("stage_1_data.rds")
+outcomes = outcomes %>%
+  select(ID,
+         any,
+         epidural,
+         intraparenchymal,
+         intraventricular,
+         subarachnoid,
+         subdural)
+
+stopifnot(
+  length(setdiff(hdr$ID, outcomes$ID)) == 0,
+  length(setdiff(outcomes$ID, hdr$ID)) == 0
+)
+
+outcomes = full_join(outcomes, hdr)
+
+readr::write_rds(outcomes, "wide_headers_with_folds_outcomes.rds")
 
 ##################################
 # finding when you have duplicate slices

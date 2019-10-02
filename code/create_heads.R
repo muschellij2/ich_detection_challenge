@@ -53,7 +53,9 @@ for (iid in uids) {
   outfile = unique(run_df$outfile)
   alt_outfile = unique(run_df$alt_outfile)
   pngfile = unique(run_df$pngfile)
+  robust_pngfile = sub("png/", "png_robust/", pngfile)
   ss_robust_file = unique(run_df$ss_robust_file)
+  robust_maskfile = sub("[.]nii", "_Mask.nii", ss_robust_file)
   stopifnot(length(ss_file) == 1,
             length(maskfile) == 1,
             length(ss_robust_file) == 1,
@@ -61,7 +63,7 @@ for (iid in uids) {
   
   
   
-  
+  # sorting is below this, can do x y z here
   run_df = run_df %>%   
     group_by(x, y, z, PatientID, SeriesInstanceUID) %>% 
     mutate(n_index = seq(n())) %>% 
@@ -74,6 +76,12 @@ for (iid in uids) {
   # make sure for ordering
   
   if (!all(file.exists(c(ss_file, maskfile, outfile)))) {
+    
+    nu = function(x) length(unique(x))
+    stopifnot(nu(run_df$PatientID) == 1,
+              nu(run_df$StudyInstanceUID) == 1,
+              nu(run_df$SeriesInstanceUID) == 1
+    )
     
     run_df = run_df %>% 
       select(PatientID, StudyInstanceUID, SeriesInstanceUID, 
@@ -93,6 +101,7 @@ for (iid in uids) {
       # iid = 1968
       # ifold = 19
       # ID_17512399-ID_ca9c5d9ce1 - example
+      # id 805 sauce
       # "ID_08f09333-ID_4fd74dabb2" is even worse
       x = divest::scanDicom(path = tdir, forceStack = TRUE)
       stack_data = TRUE
@@ -198,7 +207,8 @@ for (iid in uids) {
   if (!file.exists( ss_robust_file) & file.exists(outfile)) {
     ss = CT_Skull_Strip_smooth(
       outfile, 
-      outfile = ss_robust_file)
+      outfile = ss_robust_file,
+      lthresh = -10)
   }
   
   if (all(file.exists(c(ss_file, maskfile, outfile)))) {
@@ -216,4 +226,20 @@ for (iid in uids) {
       dev.off()
     }
   }
+  
+  if (all(file.exists(c(ss_robust_file, robust_maskfile, outfile)))) {
+    
+    if (!file.exists(robust_pngfile)) {
+      
+      # ss = readnii(ss_file)
+      img = readnii(outfile)
+      mask = readnii(robust_maskfile)
+      
+      png(robust_pngfile, res = 300, units = "in", height = 7, width = 7)
+      col.y = "#FF000080"
+      img = window_img(img)
+      ortho2(img, mask, col.y = col.y)
+      dev.off()
+    }
+  }  
 }
