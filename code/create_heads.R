@@ -218,7 +218,7 @@ for (iid in uids) {
     mask = readnii(rbmask)
     xss = mask_img(img, mask) - val
     writenii(xss, ss_robust_file)
-    writenii(rbmask, robust_maskfile)
+    writenii(mask, robust_maskfile)
   }
   
   if (all(file.exists(c(ss_file, maskfile, outfile)))) {
