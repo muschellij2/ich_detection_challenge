@@ -237,14 +237,13 @@ for (iid in uids) {
       lthresh = 0 + val,
       uthresh = 100 + val,
       mask_to_background = FALSE)
-    rm(img)
     rm(ss)
     rbmask = sub("[.]nii", "_Mask.nii", tfile)
     mask = readnii(rbmask)
     xss = mask_img(img, mask) - val
-    writenii(xss, ss_robust_file)
     writenii(mask, robust_maskfile)
     rm(mask)
+    writenii(xss, ss_robust_file)
     rm(xss)
   }
   
