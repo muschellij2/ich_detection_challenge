@@ -55,7 +55,7 @@ for (iid in uids) {
     rm(res)
     native_prob = native_res$smoothed_probability_image 
     writenii(native_prob, prob_file)
-    
+    rm(native_res)
   }
   
 }
