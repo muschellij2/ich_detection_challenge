@@ -41,9 +41,13 @@ id = df %>%
          maskfile = file.path("mask", paste0(scan_id, ".nii.gz")),
          outfile = file.path("nifti", paste0(scan_id, ".nii.gz")),
          alt_outfile = file.path("eq_nifti", paste0(scan_id, ".nii.gz")),
+         predfile = file.path("pred", paste0(scan_id, ".nii.gz")),
          reg_file = file.path("reg", paste0(scan_id, ".nii.gz")),
+         alt_ss_file = sub("ss/", "eq_ss/", ss_file),
+         alt_ss_maskfile = sub("ss/", "eq_ss/", maskfile),
          reg_mat = file.path("reg", paste0(scan_id, ".mat")),
-         pngfile = file.path("png", sub("[.]nii.gz", ".png", basename(outfile)))
+         pngfile = file.path("png", sub("[.]nii.gz", ".png", basename(outfile))),
+         robust_pngfile = sub("png/", "png_robust/", pngfile)
   )
 
 n_div = (ceiling(nrow(id) / n_folds))
