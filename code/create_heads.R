@@ -214,6 +214,7 @@ for (iid in uids) {
     
     if (any(alt)) {
       writenii(alt_img, alt_outfile)
+      rm(alt_img)
     }
     
     # may need robust:
@@ -223,7 +224,7 @@ for (iid in uids) {
       outfile = ss_file,
       maskfile = maskfile,
       keepmask = TRUE)
-    
+    rm(ss)
   }
   
   if (!file.exists( ss_robust_file) & file.exists(outfile)) {
@@ -236,11 +237,15 @@ for (iid in uids) {
       lthresh = 0 + val,
       uthresh = 100 + val,
       mask_to_background = FALSE)
+    rm(img)
+    rm(ss)
     rbmask = sub("[.]nii", "_Mask.nii", tfile)
     mask = readnii(rbmask)
     xss = mask_img(img, mask) - val
     writenii(xss, ss_robust_file)
     writenii(mask, robust_maskfile)
+    rm(mask)
+    rm(xss)
   }
   
   if (all(file.exists(c(ss_file, maskfile, outfile)))) {
@@ -256,6 +261,8 @@ for (iid in uids) {
       img = window_img(img)
       ortho2(img, mask, col.y = col.y)
       dev.off()
+      rm(img);
+      rm(mask)
     }
   }
   
@@ -272,6 +279,8 @@ for (iid in uids) {
       img = window_img(img)
       ortho2(img, mask, col.y = col.y)
       dev.off()
+      rm(img);
+      rm(mask)
     }
   }  
 }
