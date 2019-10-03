@@ -36,6 +36,8 @@ for (iid in uids) {
   run_df = df[ df$index == iid, ]
   
   ss_robust_file = unique(run_df$ss_robust_file)
+  maskfile = sub("[.]nii", "_Mask.nii", ss_robust_file)
+  stopifnot(file.exists(maskfile))
   outfile = unique(run_df$outfile)
   pred_file = unique(run_df$predfile)
   prob_file = sub(".nii", "_prob.nii", pred_file)
@@ -44,7 +46,7 @@ for (iid in uids) {
     
     res = ich_segment(
       img = outfile,
-      mask = ss_robust_file,
+      mask = maskfile,
       model = "rf", 
       native = TRUE,
       outfile = pred_file)
