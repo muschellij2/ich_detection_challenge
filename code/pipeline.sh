@@ -35,11 +35,14 @@ fi
 
 Rnosave create_heads.R -N SS -t 1-200 \
     -l mem_free=10G,h_vmem=12G
-    
-    
+
 Rnosave registration.R -N REG -t 1-200 \
     -l mem_free=7G,h_vmem=8G -hold_jid_ad SS
 
+Rnosave pitch_segmentation.R -t 1-200 \
+    -N PITCH \
+    -l mem_free=20G,h_vmem=21G,h_stack=512M 
+    
 # Rnosave create_heads.R -N SS2  -t 1-200 \
 #     -l mem_free=5G,h_vmem=6G -hold_jid_ad SS
 #     
