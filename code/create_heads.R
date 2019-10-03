@@ -60,6 +60,8 @@ for (iid in uids) {
   maskfile = unique(run_df$maskfile)
   outfile = unique(run_df$outfile)
   alt_outfile = unique(run_df$alt_outfile)
+  alt_ss_file = sub("ss/", "eq_ss/", ss_file)
+  alt_ss_maskfile = sub("ss/", "eq_ss/", maskfile)
   pngfile = unique(run_df$pngfile)
   robust_pngfile = sub("png/", "png_robust/", pngfile)
   ss_robust_file = unique(run_df$ss_robust_file)
@@ -244,6 +246,26 @@ for (iid in uids) {
     writenii(mask, robust_maskfile)
     rm(mask)
     writenii(xss, ss_robust_file)
+    rm(xss)
+  }
+  
+  if (!file.exists(alt_ss_file) & file.exists(alt_outfile)) {
+    val = 1024
+    img = readnii(alt_outfile) + val
+    tfile = tempfile(fileext = ".nii.gz")
+    ss = CT_Skull_Strip_smooth(
+      img, 
+      outfile = tfile,
+      lthresh = 0 + val,
+      uthresh = 100 + val,
+      mask_to_background = FALSE)
+    rm(ss)
+    rbmask = sub("[.]nii", "_Mask.nii", tfile)
+    mask = readnii(rbmask)
+    xss = mask_img(img, mask) - val
+    writenii(mask, alt_ss_maskfile)
+    rm(mask)
+    writenii(xss, alt_ss_file)
     rm(xss)
   }
   
