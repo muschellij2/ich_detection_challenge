@@ -68,4 +68,14 @@ for (iid in uids) {
     }
   }
   
+  infile = sub("ss/", "ss_robust/", run_df$ss_file)
+  outfile = sub("reg/", "reg_robust/", run_df$reg_file)
+  maskfile = sub("ss/", "ss_robust/", run_df$maskfile)
+  omat = sub("reg/", "reg_robust/", run_df$reg_mat)
+  if (file.exists(infile)) {
+    if (!all(file.exists(c(omat, outfile)))) {
+      out = reg_func(infile, outfile, omat, template)
+    }
+  }
+  
 }
