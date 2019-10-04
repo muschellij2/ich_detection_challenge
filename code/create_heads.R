@@ -252,7 +252,8 @@ for (iid in uids) {
     rm(xss)
   }
   
-  if (!file.exists(alt_ss_file) & file.exists(alt_outfile)) {
+  if (!(file.exists(alt_ss_file) & file.exists(alt_ss_maskfile) ) &
+      file.exists(alt_outfile)) {
     val = 1024
     img = readnii(alt_outfile) + val
     tfile = tempfile(fileext = ".nii.gz")
