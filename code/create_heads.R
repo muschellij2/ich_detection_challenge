@@ -62,7 +62,7 @@ for (iid in uids) {
   outfile = unique(run_df$outfile)
   alt_outfile = unique(run_df$alt_outfile)
   alt_ss_file = sub("ss/", "eq_ss/", ss_file)
-  alt_ss_maskfile = sub("ss/", "eq_ss/", maskfile)
+  alt_ss_maskfile = sub("[.]nii", "_Mask.nii", alt_ss_file)
   pngfile = unique(run_df$pngfile)
   robust_pngfile = sub("png/", "png_robust/", pngfile)
   ss_robust_file = unique(run_df$ss_robust_file)
