@@ -30,7 +30,7 @@ n_folds = 200
 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
-  ifold = 1
+  ifold = 114
 }
 
 df = df %>% 

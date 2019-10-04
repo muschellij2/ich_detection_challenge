@@ -37,7 +37,7 @@ df = all_df
 # ID_02c48e85-ID_bd2131d216 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
-  ifold = 147
+  ifold = 56
 }
 
 df = df[ df$fold == ifold,]
@@ -58,6 +58,7 @@ for (iid in uids) {
   
   ss_file = unique(run_df$ss_file)
   maskfile = unique(run_df$maskfile)
+  # maskfile = sub("[.]nii", "_Mask.nii", ss_file)
   outfile = unique(run_df$outfile)
   alt_outfile = unique(run_df$alt_outfile)
   alt_ss_file = sub("ss/", "eq_ss/", ss_file)
@@ -226,6 +227,8 @@ for (iid in uids) {
       outfile = ss_file,
       maskfile = maskfile,
       keepmask = TRUE)
+    out_maskfile = sub("[.]nii", "_Mask.nii", ss_file)
+    file.copy(maskfile, out_maskfile)
     rm(ss)
   }
   
