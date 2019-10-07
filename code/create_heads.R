@@ -42,6 +42,14 @@ if (is.na(ifold)) {
 
 df = df[ df$fold == ifold,]
 
+# x = list.files(pattern = ".nii.gz", path = "mask")
+# all_files = list.files(pattern = ".nii.gz", path = "nifti")
+# 
+# no_data = all_files[ !basename(all_files) %in% basename(x)]
+# 
+# df = df[ basename(df$outfile) %in% no_data,]
+# uids = unique(df$index)
+
 
 
 uids = unique(df$index)
@@ -290,23 +298,25 @@ for (iid in uids) {
   
   if (!(file.exists(alt_ss_file) & file.exists(alt_ss_maskfile) ) &
       file.exists(alt_outfile)) {
-    val = 1024
-    img = readnii(alt_outfile) + val
-    tfile = tempfile(fileext = ".nii.gz")
-    ss = CT_Skull_Strip_smooth(
-      img, 
-      outfile = tfile,
-      lthresh = 0 + val,
-      uthresh = 100 + val,
-      mask_to_background = FALSE)
-    rm(ss)
-    rbmask = sub("[.]nii", "_Mask.nii", tfile)
-    mask = readnii(rbmask)
-    xss = mask_img(img, mask) - val
-    writenii(mask, alt_ss_maskfile)
-    rm(mask)
-    writenii(xss, alt_ss_file)
-    rm(xss)
+    print("no alt stuff")
+    # 
+    # val = 1024
+    # img = readnii(alt_outfile) + val
+    # tfile = tempfile(fileext = ".nii.gz")
+    # ss = CT_Skull_Strip_smooth(
+    #   img, 
+    #   outfile = tfile,
+    #   lthresh = 0 + val,
+    #   uthresh = 100 + val,
+    #   mask_to_background = FALSE)
+    # rm(ss)
+    # rbmask = sub("[.]nii", "_Mask.nii", tfile)
+    # mask = readnii(rbmask)
+    # xss = mask_img(img, mask) - val
+    # writenii(mask, alt_ss_maskfile)
+    # rm(mask)
+    # writenii(xss, alt_ss_file)
+    # rm(xss)
   }
   
 }
