@@ -37,7 +37,7 @@ df = all_df
 # ID_02c48e85-ID_bd2131d216 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
-  ifold = 56
+  ifold = 155
 }
 
 df = df[ df$fold == ifold,]
@@ -89,12 +89,12 @@ for (iid in uids) {
   # check head size for small things need to rerun
   if (file.exists(outfile)) {
     hs = head_size(outfile)
-    if (hs < 100) {
-      file.remove(c(ss_file, maskfile, outfile, pngfile, 
-                    robust_pngfile,
-                    ss_robust_file,
-                    robust_maskfile))
-    }
+    # if (hs < 100) {
+    #   file.remove(c(ss_file, maskfile, outfile, pngfile, 
+    #                 robust_pngfile,
+    #                 ss_robust_file,
+    #                 robust_maskfile))
+    # }
   }
   
   if (!all(file.exists(c(ss_file, maskfile, outfile)))) {
