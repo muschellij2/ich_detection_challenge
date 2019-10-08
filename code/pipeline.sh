@@ -35,7 +35,10 @@ fi
 
 Rnosave create_heads.R -N SS -t 1-200 \
     -l mem_free=10G,h_vmem=12G
-
+    
+# Rnosave create_heads.R -N SS2 -t 1-200 \
+#     -l mem_free=10G,h_vmem=12G -hold_jid_ad SS
+    
 Rnosave registration.R -N REG -t 1-200 \
     -l mem_free=7G,h_vmem=8G -hold_jid_ad SS
 
