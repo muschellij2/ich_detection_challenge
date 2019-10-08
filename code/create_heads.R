@@ -299,24 +299,24 @@ for (iid in uids) {
   if (!(file.exists(alt_ss_file) & file.exists(alt_ss_maskfile) ) &
       file.exists(alt_outfile)) {
     print("no alt stuff")
-    # 
-    # val = 1024
-    # img = readnii(alt_outfile) + val
-    # tfile = tempfile(fileext = ".nii.gz")
-    # ss = CT_Skull_Strip_smooth(
-    #   img, 
-    #   outfile = tfile,
-    #   lthresh = 0 + val,
-    #   uthresh = 100 + val,
-    #   mask_to_background = FALSE)
-    # rm(ss)
-    # rbmask = sub("[.]nii", "_Mask.nii", tfile)
-    # mask = readnii(rbmask)
-    # xss = mask_img(img, mask) - val
-    # writenii(mask, alt_ss_maskfile)
-    # rm(mask)
-    # writenii(xss, alt_ss_file)
-    # rm(xss)
+
+    val = 1024
+    img = readnii(alt_outfile) + val
+    tfile = tempfile(fileext = ".nii.gz")
+    ss = CT_Skull_Strip_smooth(
+      img,
+      outfile = tfile,
+      lthresh = 0 + val,
+      uthresh = 100 + val,
+      mask_to_background = FALSE)
+    rm(ss)
+    rbmask = sub("[.]nii", "_Mask.nii", tfile)
+    mask = readnii(rbmask)
+    xss = mask_img(img, mask) - val
+    writenii(mask, alt_ss_maskfile)
+    rm(mask)
+    writenii(xss, alt_ss_file)
+    rm(xss)
   }
   
 }
