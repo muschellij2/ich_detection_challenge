@@ -32,6 +32,8 @@ then
     -l mem_free=5G,h_vmem=7G
 fi
 
+Rnosave create_hummans.R -N HUMAN -t 1-200 \
+    -l mem_free=8G,h_vmem=10G
 
 Rnosave create_heads.R -N SS -t 1-200 \
     -l mem_free=10G,h_vmem=12G
