@@ -33,7 +33,7 @@ df = readr::read_rds("wide_headers_with_folds.rds")
 all_df = df
 
 df = all_df
-
+# 7646
 # ID_02c48e85-ID_bd2131d216 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
@@ -66,6 +66,8 @@ for (iid in uids) {
   
   ss_file = unique(run_df$ss_file)
   maskfile = unique(run_df$maskfile)
+  out_maskfile = sub("[.]nii", "_Mask.nii", ss_file)
+  
   # maskfile = sub("[.]nii", "_Mask.nii", ss_file)
   outfile = unique(run_df$outfile)
   alt_outfile = unique(run_df$alt_outfile)
@@ -105,7 +107,7 @@ for (iid in uids) {
     # }
   }
   
-  if (!all(file.exists(c(ss_file, maskfile, outfile)))) {
+  if (!all(file.exists(c(ss_file, maskfile, outfile, out_maskfile)))) {
     
     nu = function(x) length(unique(x))
     stopifnot(nu(run_df$PatientID) == 1,
@@ -182,7 +184,7 @@ for (iid in uids) {
     img = readnii(nii[1])
     zdim = max(diff(run_df$z))
     diffs = round(diff(run_df$z), 2)
-    diffs = diffs[diffs > 0.2]
+    diffs = diffs[diffs > 0.3]
     zdim = sort(table(diffs), decreasing = TRUE)
     zdim = as.numeric(names(zdim))
     # should probably do this:
@@ -236,7 +238,7 @@ for (iid in uids) {
       maskfile = maskfile,
       keepmask = TRUE)
     out_maskfile = sub("[.]nii", "_Mask.nii", ss_file)
-    file.copy(maskfile, out_maskfile)
+    file.copy(maskfile, out_maskfile, overwrite = TRUE)
     rm(ss)
   }
   
