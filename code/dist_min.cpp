@@ -20,14 +20,18 @@ NumericVector dist_min_rcpp(
   NumericVector minvec_value(n, NA_REAL);
   NumericVector tmp(m, NA_REAL);
 
-  Progress p(n, display_progress);
+  // Progress p(n, display_progress);
   
   // loop through each set of starting points
-  if (Progress::check_abort() )
-    return -1.0;
+  // if (Progress::check_abort() )
+  //   return -1.0;
   for(int i = 0; i < n; i++) {
-    p.increment(); 
+    // p.increment(); 
     NumericVector x = img( _, i );
+    if (display_progress) {
+      Rcout << i << "\n";
+    }
+    
     for(int j = 0; j < m; j++) {
       NumericVector y = surface( _, j );
       double z = sqrt(sum(pow(x - y, 2)));
@@ -39,7 +43,7 @@ NumericVector dist_min_rcpp(
     // add to output matrix
     minvec_value[i] = min(na_omit(tmp));
   }
-  p.cleanup() ;
+  // p.cleanup() ;
   
   // return created data frame
   return minvec_value;
