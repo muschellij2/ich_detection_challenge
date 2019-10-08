@@ -3,7 +3,6 @@
 // [[Rcpp::depends(RcppProgress)]]
 #include <progress.hpp>
 #include <progress_bar.hpp>
-// [[Rcpp::export]]
 // use Rcpp namespace to avoid Rcpp::<...> repetition
 using namespace Rcpp;
 // compute and return minimum distance along with name
@@ -19,7 +18,7 @@ NumericVector dist_min_rcpp(
   int m = surface.ncol();
   // test if rows are equal
   NumericVector minvec_value(n, NA_REAL);
-  NumericVector tmp(m, NA_REAL);
+  NumericVector tmp(m, 0);
 
   Progress p(n, display_progress);
   
@@ -33,6 +32,9 @@ NumericVector dist_min_rcpp(
       NumericVector y = surface( _, j );
       double z = sqrt(sum(pow(x - y, 2)));
       tmp[j] = z ;
+      if (z == 0) {
+        break ;
+      }      
     }
     // add to output matrix
     minvec_value[i] = min(tmp);
