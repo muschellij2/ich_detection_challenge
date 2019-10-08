@@ -18,7 +18,7 @@ NumericVector dist_min_rcpp(
   int m = surface.ncol();
   // test if rows are equal
   NumericVector minvec_value(n, NA_REAL);
-  NumericVector tmp(m, 0);
+  NumericVector tmp(m, NA_REAL);
 
   Progress p(n, display_progress);
   
@@ -37,7 +37,7 @@ NumericVector dist_min_rcpp(
       }      
     }
     // add to output matrix
-    minvec_value[i] = min(tmp);
+    minvec_value[i] = min(na_omit(tmp));
   }
   
   // return created data frame
