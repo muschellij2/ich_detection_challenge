@@ -39,6 +39,7 @@ NumericVector dist_min_rcpp(
     // add to output matrix
     minvec_value[i] = min(na_omit(tmp));
   }
+  p.cleanup() ;
   
   // return created data frame
   return minvec_value;
