@@ -6,6 +6,7 @@ library(ichseg)
 library(dplyr)
 library(fs)
 library(dcmtk)
+library(fslr)
 setwd(here::here())
 
 add_instance_number = TRUE
@@ -98,7 +99,7 @@ for (iid in uids) {
   
   # check head size for small things need to rerun
   if (file.exists(outfile)) {
-    hs = head_size(outfile)
+    # hs = head_size(outfile)
     # if (hs < 100) {
     #   file.remove(c(ss_file, maskfile, outfile, pngfile, 
     #                 robust_pngfile,
@@ -176,6 +177,13 @@ for (iid in uids) {
     alt = grepl("(Tilt|Eq)", nii)
     if (any(alt)) {
       alt_nii = nii[alt]
+      stopifnot(length(alt_nii) == 1)
+      gf = fslr::getForms(alt_nii)
+      if (!all(gf$ssor != gf$sqor)) {
+        if (all(gf$sqor == c("RL", "PA", "IS"))) {
+          alt_img = fslorient(alt_nii, opts = "-copyqform2sform")
+        }
+      }
       alt_img = readnii(alt_nii[1])
       alt_img = rescale_img(alt_img)
     }
@@ -300,8 +308,8 @@ for (iid in uids) {
   
   if (!(file.exists(alt_ss_file) & file.exists(alt_ss_maskfile) ) &
       file.exists(alt_outfile)) {
-    print("no alt stuff")
-
+    # print("no alt stuff")
+    
     val = 1024
     img = readnii(alt_outfile) + val
     tfile = tempfile(fileext = ".nii.gz")
