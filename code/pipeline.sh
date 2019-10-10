@@ -32,12 +32,11 @@ then
     -l mem_free=5G,h_vmem=7G
 fi
 
-Rnosave create_humans.R -N HUMAN -t 1-200 \
-    -l mem_free=8G,h_vmem=10G
-
 Rnosave create_heads.R -N SS -t 1-200 \
     -l mem_free=10G,h_vmem=12G
-    
+
+Rnosave create_humans.R -N HUMAN -t 1-200 \
+    -l mem_free=8G,h_vmem=10G -hold_jid_ad SS  
 # Rnosave create_heads.R -N SS2 -t 1-200 \
 #     -l mem_free=10G,h_vmem=12G -hold_jid_ad SS
     
