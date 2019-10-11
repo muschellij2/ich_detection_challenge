@@ -2,6 +2,7 @@ file_exists = function(...) {
   x = list(...)
   x = unlist(...)
   x = unname(x)
+  x = tolower(x)
   df = data.frame(x = x, 
                   bn = basename(x),
                   dn = dirname(x),
@@ -10,6 +11,7 @@ file_exists = function(...) {
   udn = unique(df$dn)
   res = lapply(udn, function(path) {
     bn = list.files(path, recursive = FALSE, full.names = FALSE, all.files = TRUE)
+    bn = tolower(bn)
     data.frame(dn = path, bn = bn, exists = TRUE, stringsAsFactors = FALSE)
   })
   res = do.call(rbind, res)

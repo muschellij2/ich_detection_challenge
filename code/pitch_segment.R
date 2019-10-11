@@ -3,7 +3,7 @@ library(neurobase)
 library(ichseg)
 library(dplyr)
 setwd(here::here())
-
+source("code/file_exists.R")
 
 tmp = sapply(c("ss", "mask", "nifti"), dir.create, 
              showWarnings = FALSE)

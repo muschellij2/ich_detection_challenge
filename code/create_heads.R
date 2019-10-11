@@ -52,7 +52,7 @@ df = df[ df$fold == ifold,]
 # df = df[ basename(df$outfile) %in% no_data,]
 # uids = unique(df$index)
 
-
+# uids = c(16459, 16786, 19075)
 
 uids = unique(df$index)
 iid = uids[1]
@@ -251,7 +251,7 @@ for (iid in uids) {
     rm(ss)
   }
   
-  if (!file.exists(ss_robust_file) & file.exists(outfile)) {
+  if (!all(file.exists(ss_robust_file, robust_maskfile)) & file.exists(outfile)) {
     val = 1024
     img = readnii(outfile) + val
     tfile = tempfile(fileext = ".nii.gz")
