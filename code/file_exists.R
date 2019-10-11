@@ -7,8 +7,7 @@ file_exists = function(...) {
                   dn = dirname(x),
                   index = 1:length(x),
                   stringsAsFactors = FALSE)
-  dn = unique(df$dn)
-  udn = unique(dn)
+  udn = unique(df$dn)
   res = lapply(udn, function(path) {
     bn = list.files(path, recursive = FALSE, full.names = FALSE, all.files = TRUE)
     data.frame(dn = path, bn = bn, exists = TRUE, stringsAsFactors = FALSE)
