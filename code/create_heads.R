@@ -9,6 +9,7 @@ library(dcmtk)
 library(fslr)
 setwd(here::here())
 
+source("code/file_exists.R")
 add_instance_number = TRUE
 
 sub_bracket = function(x) {
