@@ -5,7 +5,7 @@ file_exists = function(...) {
   df = data.frame(x = x, 
                   bn = basename(x),
                   dn = dirname(x),
-                  index = 1:length(n),
+                  index = 1:length(x),
                   stringsAsFactors = FALSE)
   dn = unique(df$dn)
   udn = unique(dn)
