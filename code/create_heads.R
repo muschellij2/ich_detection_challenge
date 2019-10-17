@@ -191,16 +191,21 @@ for (iid in uids) {
     nii = nii[ !alt]
     stopifnot(length(nii) == 1)
     img = readnii(nii[1])
-    zdim = max(diff(run_df$z))
-    diffs = round(diff(run_df$z), 2)
-    diffs = diffs[diffs > 0.3]
-    zdim = sort(table(diffs), decreasing = TRUE)
-    zdim = as.numeric(names(zdim))
-    # should probably do this:
-    # due to "ID_02c48e85-ID_bd2131d216
-    # 6512 - weird
-    # "ID_4b4643db-ID_99ef75869d"
-    pixdim(img)[4] = zdim[1]
+    zdim = voxdim(img)[3]
+    
+    if (zdim[1]*nsli(img) < 100) {
+      zdim = max(diff(run_df$z))
+      diffs = round(diff(run_df$z), 2)
+      diffs = diffs[diffs > 0.35]
+      zdim = sort(table(diffs), decreasing = TRUE)
+      zdim = as.numeric(names(zdim))
+      # should probably do this:
+      # due to "ID_02c48e85-ID_bd2131d216
+      # 6512 - weird
+      # "ID_4b4643db-ID_99ef75869d"
+      pixdim(img)[4] = zdim[1]
+    }
+    
     if (zdim[1]*nsli(img) < 100) {
       warning("probably flat head!! Too small z-dimensions")
     }
