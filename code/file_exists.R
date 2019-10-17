@@ -20,3 +20,24 @@ file_exists = function(...) {
   lj = lj[ order(lj$index), ]
   return(lj$exists)
 }
+
+
+d3 = function(x) {
+  x = fslr::fslval(x, keyword = "pixdim3", verbose = FALSE)
+  as.numeric(x)
+}
+
+
+sub_bracket = function(x) {
+  x = sub("^\\[", "", x)
+  x = sub("\\]$", "", x)
+  x = trimws(x)
+}
+
+head_size = function(x) {
+  res = fslr::fslhd(x, verbose = FALSE)
+  hdr = fslr::fslhd.parse(res)
+  pdim = as.numeric(hdr["pixdim3",])
+  nslices = as.numeric( hdr["dim3",])
+  pdim*nslices
+}

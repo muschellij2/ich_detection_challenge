@@ -9,6 +9,10 @@ library(extrantsr)
 setwd(here::here())
 
 n_folds = 200
+d3 = function(x) {
+  x = fslval(x, keyword = "pixdim3", verbose = FALSE)
+  as.numeric(x)
+}
 
 df = readr::read_rds("wide_headers_with_folds.rds")
 all_df = df
@@ -24,13 +28,14 @@ if (is.na(ifold)) {
   ifold = 51
 }
 
+
+
 df = df[ df$fold == ifold,]
 
 uids = unique(df$index)
 iid = uids[1]
 
 for (iid in uids) {
-  
   
   print(iid)
   run_df = df[ df$index == iid, ]
@@ -40,6 +45,13 @@ for (iid in uids) {
   if (!file.exists(out_mask)) {
     res = lungct::segment_human(outfile, verbose = TRUE)
     write_nifti(res$body, out_mask)
+  } else {
+    vd = d3(outfile)
+    vd_mask = d3(out_mask)
+    if (vd != vd_mask) {
+      print("bad")
+      file.remove(out_mask)
+    }
   }
 
   

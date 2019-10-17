@@ -12,19 +12,6 @@ setwd(here::here())
 source("code/file_exists.R")
 add_instance_number = TRUE
 
-sub_bracket = function(x) {
-  x = sub("^\\[", "", x)
-  x = sub("\\]$", "", x)
-  x = trimws(x)
-}
-
-head_size = function(x) {
-  res = fslr::fslhd(x, verbose = FALSE)
-  hdr = fslr::fslhd.parse(res)
-  pdim = as.numeric(hdr["pixdim3",])
-  nslices = as.numeric( hdr["dim3",])
-  pdim*nslices
-}
 
 tmp = sapply(c("ss", "mask", "nifti"), dir.create, 
              showWarnings = FALSE)
@@ -108,8 +95,12 @@ for (iid in uids) {
     #                 robust_maskfile))
     # }
   }
-  
-  if (!all(file.exists(c(ss_file, maskfile, outfile, out_maskfile)))) {
+  all_files = c(ss_file, maskfile, outfile, out_maskfile)
+  if (all(file.exists(all_files))) {
+    all_d = sapply(all_files, d3)
+  }
+    
+  if (!all(file.exists(all_files))) {
     
     nu = function(x) length(unique(x))
     stopifnot(nu(run_df$PatientID) == 1,
