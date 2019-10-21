@@ -26,7 +26,7 @@ df = all_df
 # ID_02c48e85-ID_bd2131d216 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
-  ifold = 51
+  ifold = 27
 }
 
 df = df[ df$fold == ifold,]
@@ -95,7 +95,7 @@ for (iid in uids) {
     #                 robust_maskfile))
     # }
   }
-  all_files = c(ss_file, maskfile, outfile, out_maskfile)
+  all_files = c(ss_file, maskfile, outfile, out_maskfile, robust_maskfile)
   if (all(file.exists(all_files))) {
     all_d = sapply(all_files, d3)
   }

@@ -27,6 +27,7 @@ df = df[ df$fold == ifold,]
 
 uids = rev(unique(df$index))
 iid = uids[1]
+# iid = 2935
 # iid = 11810
 for (iid in uids) {
   
