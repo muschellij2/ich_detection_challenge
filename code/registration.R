@@ -5,6 +5,8 @@ library(neurobase)
 library(extrantsr)
 setwd(here::here())
 
+source("code/file_exists.R")
+
 reg_func = function(infile, outfile, omat, template) {
   ss = registration(
     filename = infile,
@@ -25,8 +27,20 @@ reg_func = function(infile, outfile, omat, template) {
 df = readr::read_rds("wide_headers_with_folds.rds")
 all_df = df
 
+ddf = df %>% 
+  select(scan_id, fold, index, predfile, outfile, maskfile) %>% 
+  distinct()
+
 df = all_df
 n_folds = 200
+
+
+df = df %>% 
+  select(fold, index, scan_id, outfile, maskfile,
+         reg_file,
+         reg_mat,
+         ss_file, ss_robust_file) %>% 
+  distinct()
 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
@@ -34,13 +48,7 @@ if (is.na(ifold)) {
 }
 
 df = df %>% 
-  filter(fold == ifold) %>% 
-  select(fold, index, scan_id, outfile, maskfile,
-         reg_file,
-         reg_mat,
-         ss_file, ss_robust_file) %>% 
-  distinct()
-
+  filter(fold == ifold)
 
 uids = unique(df$index)
 iid = uids[1]

@@ -43,9 +43,9 @@ df = df[ df$fold == ifold,]
 
 uids = unique(df$index)
 iid = uids[1]
-# iid = 15977
-# iid =102
-#iid = 219
+# iid = 9708
+# iid = 102
+# iid = 219
 for (iid in uids) {
   
   print(iid)
