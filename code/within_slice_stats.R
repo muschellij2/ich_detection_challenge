@@ -24,8 +24,6 @@ ddf = df %>%
   select(scan_id, fold, index, predfile, outfile, maskfile) %>% 
   distinct()
 
-n_folds = 200
-
 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
