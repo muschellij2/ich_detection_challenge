@@ -47,7 +47,7 @@ Rnosave pitch_segment.R -t 75 \
     -N PITCH \
     -l mem_free=20G,h_vmem=21G,h_stack=512M 
     
-Rnosave within_slice_stats.R -N SS -t 1-200 \
+Rnosave within_slice_stats.R -N STATS -t 1-200 \
     -l mem_free=8G,h_vmem=9G -hold_jid_ad SS    
     
 # Rnosave create_heads.R -N SS2  -t 1-200 \

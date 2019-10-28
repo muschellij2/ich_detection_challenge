@@ -35,9 +35,12 @@ df = df %>%
 
 uids = unique(df$index)
 iid = 16
-
-for (iid in uids) {
-  
+results = vector(mode = "list", length = length(uids))
+fold_outfile = file.path(
+  "stats", 
+  paste0("fold_", ifold, ".rds"))
+for (i in seq_along(uids)) {
+  iid = uids[i]
   print(iid)
   run_df = df[ df$index == iid, ]
   scan_id = unique(run_df$scan_id)
@@ -75,5 +78,10 @@ for (iid in uids) {
     res$scan_id = scan_id
     message("Writing the file")
     readr::write_rds(res, out_rds)
+  } else {
+    res = readr::read_rds(out_rds)
   }
+  results[[i]] = res
 }
+results = dplyr::bind_rows(results)
+readr::write_rds(results, path = fold_outfile)
