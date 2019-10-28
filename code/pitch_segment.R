@@ -13,12 +13,16 @@ n_folds = 200
 df = readr::read_rds("wide_headers_with_folds.rds")
 all_df = df
 
+ddf = df %>% 
+  select(scan_id, fold, index, predfile, outfile, maskfile) %>% 
+  distinct()
+
 df = all_df
 
 # ID_02c48e85-ID_bd2131d216 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
-  ifold = 27
+  ifold = 75
 }
 
 df = df[ df$fold == ifold,]

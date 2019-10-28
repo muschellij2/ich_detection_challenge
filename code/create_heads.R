@@ -2,6 +2,7 @@ rm(list = ls())
 library(dcm2niir)
 library(divest)
 library(neurobase)
+library(extrantsr)
 library(ichseg)
 library(dplyr)
 library(fs)
@@ -59,6 +60,7 @@ for (iid in uids) {
   
   # maskfile = sub("[.]nii", "_Mask.nii", ss_file)
   outfile = unique(run_df$outfile)
+  n4_file = file.path("n4", basename(outfile))
   alt_outfile = unique(run_df$alt_outfile)
   alt_ss_file = sub("ss/", "eq_ss/", ss_file)
   alt_ss_maskfile = sub("[.]nii", "_Mask.nii", alt_ss_file)
@@ -265,6 +267,21 @@ for (iid in uids) {
     rm(mask)
     writenii(xss, ss_robust_file)
     rm(xss)
+  }
+  
+  if (all(file.exists(ss_robust_file, robust_maskfile)) & 
+      !file.exists(n4_file)) {
+    # val = 1024
+    img = readnii(outfile)
+    robust_mask = readnii(robust_maskfile)
+    img = mask_img(img, robust_mask)
+    bc = bias_correct(
+      file = img, 
+      mask = robust_maskfile,
+      correction = "N4")
+    bc = mask_img(bc, robust_mask)
+    writenii(bc, n4_file)
+    rm(bc)
   }
   
   if (all(file.exists(c(ss_file, maskfile, outfile)))) {

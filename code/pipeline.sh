@@ -41,7 +41,7 @@ Rnosave create_humans.R -N HUMAN -t 1-200 \
 #     -l mem_free=10G,h_vmem=12G -hold_jid_ad SS
     
 Rnosave registration.R -N REG -t 1-200 \
-    -l mem_free=7G,h_vmem=8G -hold_jid_ad SS
+    -l mem_free=8G,h_vmem=10G -hold_jid_ad SS
 
 Rnosave pitch_segment.R -t 75 \
     -N PITCH \
