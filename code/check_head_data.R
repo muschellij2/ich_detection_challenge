@@ -99,8 +99,18 @@ stopifnot(
 
 outcomes = full_join(outcomes, hdr)
 
+outcomes = outcomes  %>% 
+  arrange(PatientID, StudyInstanceUID, SeriesInstanceUID, x, y, z) 
+
 readr::write_rds(outcomes, "wide_headers_with_folds_outcomes.rds")
 
+# dup_data =  df %>%   
+#   arrange(PatientID, StudyInstanceUID, SeriesInstanceUID, 
+#           x, y, z, instance_number) %>% 
+#   group_by(PatientID, StudyInstanceUID, SeriesInstanceUID, x, y, z) %>% 
+#   filter(n() > 1)
+outcomes = c("any", "epidural", "intraparenchymal", "intraventricular", 
+             "subarachnoid", "subdural")
 ##################################
 # finding when you have duplicate slices
 ##################################

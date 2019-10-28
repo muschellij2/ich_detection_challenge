@@ -3,7 +3,6 @@ library(dcm2niir)
 library(divest)
 library(oro.nifti)
 library(neurobase)
-library(ichseg)
 library(extrantsr)
 library(dplyr)
 library(fs)
@@ -29,6 +28,17 @@ ddf = df %>%
   select(scan_id, fold, index, predfile, outfile, maskfile) %>% 
   distinct()
 
+outcomes = c("any", "epidural", "intraparenchymal", "intraventricular", 
+             "subarachnoid", "subdural")
+positive_scans = df %>% 
+  filter(any > 0) %>% 
+  select(scan_id) %>% 
+  distinct() %>% 
+  pull(scan_id)
+positives = df %>% 
+  filter(scan_id %in% positive_scans)
+# x = positives[ positives$scan_id == positives$scan_id[1],]
+
 n_folds = 200
 
 
@@ -41,8 +51,7 @@ n_folds = 200
 #   filter(fold == ifold)
 
 uids = unique(df$index)
-iid = uids[1]
-
+iid = 16
 
 for (iid in uids) {
   
@@ -61,21 +70,22 @@ for (iid in uids) {
   ss = readnii(ss_robust_file)
   prob = readnii(prob_file)
   pred = readnii(pred_file)
-  thresh = 0.25
+  thresh = 0.1
   coarse_pred = prob > thresh
   
 
   blood_pred = apply(pred, 3, sum)
+  blood_pred_vol = voxres(pred, units = "cm") * blood_pred
   blood = apply(coarse_pred, 3, sum)
+  blood_vol = voxres(pred, units = "cm") * blood
+  
   k = round(1/voxres(prob, units = "cm"))
   res = ants_bwlabel(img = coarse_pred, k = k)
   coarse_blood = apply(res, 3, sum)
+  coarse_blood_vol = voxres(pred, units = "cm") * coarse_blood
   
   prediction_cc = ants_bwlabel(img = pred, k = k)
   prediction_cc_blood = apply(prediction_cc, 3, sum)
-  
-  blood_vol = voxres(pred, units = "cm") * blood
-  coarse_blood_vol = voxres(pred, units = "cm") * coarse_blood
   
   
 }
