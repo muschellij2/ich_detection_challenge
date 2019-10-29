@@ -53,6 +53,9 @@ Rnosave within_slice_stats.R -N STATS -t 1-200 \
 Rnosave collapse_stats.R -N COLLSTATS \
     -l mem_free=8G,h_vmem=9G -hold_jid STATS
     
+Rnosave collapse_stats.R -N PRED -t 1-6 \
+    -l mem_free=20G,h_vmem=21G -hold_jid STATS    
+    
 # Rnosave create_heads.R -N SS2  -t 1-200 \
 #     -l mem_free=5G,h_vmem=6G -hold_jid_ad SS
 #     

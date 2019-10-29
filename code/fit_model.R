@@ -113,7 +113,8 @@ attr(mod, "outcome_used") = ioutcome
 readr::write_rds(mod, 
                  path = file.path("predictions", 
                                   paste0("rf_", ioutcome, ".rds")))
-mod = readRDS( file.path("predictions", "quick_20_trees.rds"))
+mod
+# mod = readRDS( file.path("predictions", "quick_20_trees.rds"))
 
 
 testing = testing %>% 
