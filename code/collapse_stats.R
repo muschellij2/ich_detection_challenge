@@ -67,6 +67,21 @@ tt = train %>%
   tidyr::gather(outcome_measure, outcome,
                 any, epidural, intraparenchymal, 
                 intraventricular, subarachnoid, subdural)  
+
+tt %>% 
+  filter(statistic == "mean") %>% 
+  ggplot(aes(y = value, x = factor(outcome))) + geom_boxplot() + 
+  facet_wrap(~ outcome_measure)
+
+tt %>% 
+  filter(statistic == "mean") %>% 
+  filter(!is.na(value)) %>% 
+  ggplot(aes(x = value, colour = factor(outcome))) + 
+  geom_line(stat = "density") +
+  xlim(c(-50, 50)) + 
+  facet_wrap(~ outcome_measure)
+
+
 res = tt %>% 
   filter(!is.na(value)) %>% 
   group_by(statistic, outcome_measure, outcome) %>% 
