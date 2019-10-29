@@ -71,6 +71,9 @@ for (i in seq_along(uids)) {
       df$pct_30_80 = mean(x > 30 & x < 80, na.rm = TRUE)
       df$pct_40_80 = mean(x > 40 & x < 80, na.rm = TRUE)
       df$pct_40_60 = mean(x > 40 & x < 60, na.rm = TRUE)
+      df$sum_30_80 = sum(x > 30 & x < 80, na.rm = TRUE)
+      df$sum_40_80 = sum(x > 40 & x < 80, na.rm = TRUE)
+      df$sum_40_60 = sum(x > 40 & x < 60, na.rm = TRUE)      
       df$median = median(x, na.rm = TRUE)
       df$sd = sd(x, na.rm = TRUE)
       df
