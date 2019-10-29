@@ -49,7 +49,7 @@ for (i in seq_along(uids)) {
   outfile = unique(run_df$outfile)
   out_rds = file.path("stats", 
                       paste0(nii.stub(outfile, bn = TRUE), ".rds"))
-  if (!file.exists(out_rds)) {
+  # if (!file.exists(out_rds)) {
     ss_robust_file = unique(run_df$ss_robust_file)
     maskfile = sub("[.]nii", "_Mask.nii", ss_robust_file)
     stopifnot(file.exists(maskfile))
@@ -68,6 +68,9 @@ for (i in seq_along(uids)) {
                  probs = c(0, 0.25, 0.5, 0.75, 0.95, 0.99, 1)
         )))
       df$mean = mean(x, na.rm = TRUE)
+      df$pct_30_80 = mean(x > 30 & x < 80)
+      df$pct_40_80 = mean(x > 30 & x < 80)
+      df$pct_40_60 = mean(x > 30 & x < 60)
       df$median = median(x, na.rm = TRUE)
       df$sd = sd(x, na.rm = TRUE)
       df
@@ -78,9 +81,9 @@ for (i in seq_along(uids)) {
     res$scan_id = scan_id
     message("Writing the file")
     readr::write_rds(res, out_rds)
-  } else {
-    res = readr::read_rds(out_rds)
-  }
+  # } else {
+  #   res = readr::read_rds(out_rds)
+  # }
   results[[i]] = res
 }
 results = dplyr::bind_rows(results)
