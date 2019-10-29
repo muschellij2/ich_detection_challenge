@@ -120,6 +120,7 @@ for (i in seq_along(uids)) {
   prob_res$scan_id = scan_id  
   
   res = left_join(res, prob_res)
+  res$instance_number = as.integer(res$instance_number)
   
   n_voxels = apply(mask, 3, sum)
   n_voxels = data.frame(n_voxels = n_voxels, 
