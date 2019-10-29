@@ -10,3 +10,4 @@ stage_1_train_images/
 *.csv.zip
 send_to_cluster.sh
 *.rds
+predictions/

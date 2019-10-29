@@ -39,6 +39,8 @@ results = vector(mode = "list", length = length(uids))
 fold_outfile = file.path(
   "stats", 
   paste0("fold_", ifold, ".rds"))
+i = 1
+
 for (i in seq_along(uids)) {
   iid = uids[i]
   print(iid)
@@ -89,6 +91,8 @@ for (i in seq_along(uids)) {
   names(res) = seq(dim(ss)[3])
   res = bind_rows(res, .id = "instance_number")
   res$scan_id = scan_id
+  
+  
   prob_res = apply(prob > 0.1, 3, stats, 
                    run_pct = FALSE, run_median = FALSE)
   names(prob_res) = seq(dim(ss)[3])
@@ -100,6 +104,19 @@ for (i in seq_along(uids)) {
   cn[ cn == "pitch_instance_number"] = "instance_number"
   colnames(prob_res) = cn
   prob_res$scan_id = scan_id
+  res = left_join(res, prob_res)
+  
+  prob_res = apply(prob, 3, stats, 
+                   run_pct = FALSE, run_median = TRUE)
+  names(prob_res) = seq(dim(ss)[3])
+  prob_res = bind_rows(prob_res, .id = "instance_number")
+  cn = colnames(prob_res)
+  cn = cn[ !grepl("pct|sum", cn)]
+  prob_res = prob_res[, cn]
+  cn = paste0("prob_", cn)
+  cn[ cn == "prob_instance_number"] = "instance_number"
+  colnames(prob_res) = cn
+  prob_res$scan_id = scan_id  
   
   res = left_join(res, prob_res)
   message("Writing the file")

@@ -11,7 +11,7 @@ n_folds = 200
 
 results = vector(mode = "list", length = n_folds)
 
-full_outfile = file.path(
+outfile = file.path(
   "stats", 
   paste0("all_folds.rds"))
 full_outfile = file.path(
@@ -29,7 +29,7 @@ for (ifold in seq(n_folds)) {
 results = dplyr::bind_rows(results)
 results = results %>% 
   mutate_at(vars(instance_number), as.numeric)
-# readr::write_rds(results, path = full_outfile)
+readr::write_rds(results, path = outfile)
 
 df = readr::read_rds("wide_headers_with_folds_outcomes.rds")
 
