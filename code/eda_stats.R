@@ -8,14 +8,28 @@ source("code/file_exists.R")
 
 n_folds = 200
 
+hdr = readr::read_rds("wide_headers.rds")
+
+
 full_outfile = file.path(
   "stats", 
   paste0("all_data.rds"))
 results = readr::read_rds(path = full_outfile)
 
+df = results %>% 
+  filter(group == "train") %>% 
+  group_by(scan_id) %>% 
+  mutate(z_mean = z - mean(z)) %>% 
+  ungroup()
 
+df = df %>% 
+  select(starts_wi)
+  
+  
 train = results %>% 
   filter(group == "train")
+
+
 # xx = train[ is.na(train$mean) &  train$any > 0,]
 # x = train[ train$scan_id %in% xx$scan_id[1], ]
 # img = readnii(x$outfile[1])
@@ -73,3 +87,25 @@ res = tt %>%
 tt %>% 
   ggplot(aes(y = value, x = factor(outcome))) + geom_boxplot() + 
   facet_wrap(~ outcome_measure + statistic)
+
+
+
+library(dplyr)
+library(neurobase)
+library(ggplot2)
+library(tidyr)
+setwd(here::here())
+
+source("code/file_exists.R")
+
+n_folds = 200
+
+full_outfile = file.path(
+  "stats", 
+  paste0("all_data.rds"))
+results = readr::read_rds(path = full_outfile)
+
+
+
+  
+  

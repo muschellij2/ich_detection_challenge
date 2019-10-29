@@ -66,6 +66,7 @@ for (i in seq_along(uids)) {
   ss[ mask == 0] = NA
   prob[ mask == 0] = NA
   
+                   
   stats = function(x, run_pct = TRUE, run_median = TRUE) {
     x = c(x)
     df = as.data.frame(t(
@@ -119,8 +120,16 @@ for (i in seq_along(uids)) {
   prob_res$scan_id = scan_id  
   
   res = left_join(res, prob_res)
+  
+  n_voxels = apply(mask, 3, sum)
+  n_voxels = data.frame(n_voxels = n_voxels, 
+                        instance_number = seq(dim(ss)[3]), 
+                        stringsAsFactors = FALSE)
+  res = left_join(res, n_voxels)
+  
   message("Writing the file")
   readr::write_rds(res, out_rds)
+  
   # } else {
   #   res = readr::read_rds(out_rds)
   # }
