@@ -47,43 +47,63 @@ for (i in seq_along(uids)) {
   run_df = run_df %>% 
     arrange(instance_number)
   outfile = unique(run_df$outfile)
+  
   out_rds = file.path("stats", 
                       paste0(nii.stub(outfile, bn = TRUE), ".rds"))
   # if (!file.exists(out_rds)) {
-    ss_robust_file = unique(run_df$ss_robust_file)
-    maskfile = sub("[.]nii", "_Mask.nii", ss_robust_file)
-    stopifnot(file.exists(maskfile))
-    
-    pred_file = unique(run_df$predfile)
-    prob_file = sub(".nii", "_prob.nii", pred_file)
-    
-    ss = RNifti::readNifti(ss_robust_file)
-    mask = RNifti::readNifti(maskfile)
-    ss[ mask == 0] = NA
-    
-    stats = function(x) {
-      x = c(x)
-      df = as.data.frame(t(
-        quantile(x, na.rm = TRUE,
-                 probs = c(0, 0.25, 0.5, 0.75, 0.95, 0.99, 1)
-        )))
-      df$mean = mean(x, na.rm = TRUE)
+  ss_robust_file = unique(run_df$ss_robust_file)
+  maskfile = sub("[.]nii", "_Mask.nii", ss_robust_file)
+  stopifnot(file.exists(maskfile))
+  
+  pred_file = unique(run_df$predfile)
+  prob_file = sub(".nii", "_prob.nii", pred_file)
+  
+  prob = RNifti::readNifti(prob_file)
+  ss = RNifti::readNifti(ss_robust_file)
+  mask = RNifti::readNifti(maskfile)
+  ss[ mask == 0] = NA
+  prob[ mask == 0] = NA
+  
+  stats = function(x, run_pct = TRUE, run_median = TRUE) {
+    x = c(x)
+    df = as.data.frame(t(
+      quantile(x, na.rm = TRUE,
+               probs = c(0, 0.25, 0.5, 0.75, 0.95, 0.99, 1)
+      )))
+    df$mean = mean(x, na.rm = TRUE)
+    if (run_pct) {
       df$pct_30_80 = mean(x > 30 & x < 80, na.rm = TRUE)
       df$pct_40_80 = mean(x > 40 & x < 80, na.rm = TRUE)
       df$pct_40_60 = mean(x > 40 & x < 60, na.rm = TRUE)
       df$sum_30_80 = sum(x > 30 & x < 80, na.rm = TRUE)
       df$sum_40_80 = sum(x > 40 & x < 80, na.rm = TRUE)
       df$sum_40_60 = sum(x > 40 & x < 60, na.rm = TRUE)      
-      df$median = median(x, na.rm = TRUE)
-      df$sd = sd(x, na.rm = TRUE)
-      df
     }
-    res = apply(ss, 3, stats)
-    names(res) = seq(dim(ss)[3])
-    res = bind_rows(res, .id = "instance_number")
-    res$scan_id = scan_id
-    message("Writing the file")
-    readr::write_rds(res, out_rds)
+    if (run_median) {
+      df$median = median(x, na.rm = TRUE)
+    }
+    df$sd = sd(x, na.rm = TRUE)
+    df
+  }
+  res = apply(ss, 3, stats)
+  names(res) = seq(dim(ss)[3])
+  res = bind_rows(res, .id = "instance_number")
+  res$scan_id = scan_id
+  prob_res = apply(prob > 0.1, 3, stats, 
+                   run_pct = FALSE, run_median = FALSE)
+  names(prob_res) = seq(dim(ss)[3])
+  prob_res = bind_rows(prob_res, .id = "instance_number")
+  cn = colnames(prob_res)
+  cn = cn[ !grepl("pct|sum", cn)]
+  prob_res = prob_res[, cn]
+  cn = paste0("pitch_", cn)
+  cn[ cn == "pitch_instance_number"] = "instance_number"
+  colnames(prob_res) = cn
+  prob_res$scan_id = scan_id
+  
+  res = left_join(res, prob_res)
+  message("Writing the file")
+  readr::write_rds(res, out_rds)
   # } else {
   #   res = readr::read_rds(out_rds)
   # }
