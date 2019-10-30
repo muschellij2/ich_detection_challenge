@@ -66,7 +66,7 @@ for (iid in uids) {
                           sub("[.]", "_512.", basename(outfile)))
   reduced_maskfile = file.path("reduced", basename(out_maskfile))
   padded_maskfile = sub("[.]nii", "_Mask.nii", padded_file)
-
+  
   reduced_rds = file.path("reduced", 
                           paste0(nii.stub(outfile, bn = TRUE), 
                                  ".rds"))
@@ -113,7 +113,7 @@ for (iid in uids) {
   if (all(file.exists(all_files))) {
     all_d = sapply(all_files, d3)
   }
-    
+  
   if (!all(file.exists(all_files))) {
     
     nu = function(x) length(unique(x))
@@ -298,7 +298,7 @@ for (iid in uids) {
   #   writenii(bc, n4_file)
   #   rm(bc)
   # }
-
+  
   if (all(file.exists(ss_robust_file, robust_maskfile)) & 
       !all(file.exists(reduced_file, padded_file))) {
     # val = 1024
@@ -332,14 +332,18 @@ for (iid in uids) {
   
   run_df = run_df %>% 
     arrange(instance_number)
-  tiff_files = file.path("tiff_512", sub(".dcm", ".tiff", basename(run_df$file)))
-  ss = readnii(ss_robust_file)
-  ss = (ss - (-1024)) / (3071 - (-1024)) * 255
-  imgs = apply(ss, 3, function(x) list(EBImage::as.Image(x)))
-  imgs = lapply(imgs, function(x) x[[1]])
-  mapply(function(img, file) {
-    EBImage::writeImage(img, file, compression = "LZW")
-  }, imgs, tiff_files)
+  tiff_files = file.path("tiff_512", 
+                         sub(".dcm", ".tiff", basename(run_df$file)))
+  if (!all(file.exists(tiff_files))) {
+    ss = readnii(ss_robust_file)
+    # no 255
+    ss = (ss - (-1024)) / (3071 - (-1024)) 
+    imgs = apply(ss, 3, function(x) list(EBImage::as.Image(x)))
+    imgs = lapply(imgs, function(x) x[[1]])
+    mapply(function(img, file) {
+      EBImage::writeImage(img, file, compression = "LZW")
+    }, imgs, tiff_files)
+  }
   
   if (all(file.exists(c(ss_file, maskfile, outfile)))) {
     

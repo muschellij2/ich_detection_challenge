@@ -69,16 +69,20 @@ training = training %>%
 
 outcomes = c("any", "epidural", "intraparenchymal", "intraventricular", 
              "subarachnoid", "subdural")
+tree_options = c(500, 2000)
+eg = expand.grid(outcome = outcomes, 
+                 num.trees = tree_options,
+                 stringsAsFactors = FALSE)
 
-iioutcome = as.numeric(Sys.getenv("SGE_TASK_ID"))
-if (is.na(iioutcome)) {
-  iioutcome = 2
+iscen = as.numeric(Sys.getenv("SGE_TASK_ID"))
+if (is.na(iscen)) {
+  iscen = 2
 }
+ieg = eg[iscen,]
+ioutcome = ieg$outcome
+num.trees = ieg$num.trees
 
-num.trees = 2000
 
-
-ioutcome = outcomes[iioutcome]
 
 outfile = file.path(
   "predictions", 
@@ -147,4 +151,27 @@ if (!file.exists(test_outfile)) {
     select(ID, Label) %>% 
     mutate(outcome = ioutcome)
   readr::write_rds(out, path = test_outfile)
+}
+
+train_outfile = file.path(
+  "predictions",
+  paste0("rf_train_", ioutcome, "_", 
+         num.trees,
+         ".rds"))
+if (!file.exists(train_outfile)) {
+  out = rep(NA, nrow(training))
+  index = training$n_voxels > 0
+  stopifnot(!any(is.na(training[index,])))
+  
+  pred = predict(mod, data = training[index, ],
+                 num.threads = nthreads)
+  pred = pred$predictions[, "1"]
+  
+  out[index] = pred
+  out[is.na(out)] = 0
+  testing$Label = out
+  out = training %>% 
+    select(ID, Label) %>% 
+    mutate(outcome = ioutcome)
+  readr::write_rds(out, path = train_outfile)
 }
