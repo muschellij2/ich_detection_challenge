@@ -75,10 +75,14 @@ if (is.na(iioutcome)) {
   iioutcome = 2
 }
 
+num.trees = 1000
+
+
 ioutcome = outcomes[iioutcome]
 
-outfile = file.path("predictions", 
-                    paste0("rf_", ioutcome, ".rds"))
+outfile = file.path(
+  "predictions", 
+  paste0("rf_", ioutcome, "_", num.trees, ".rds"))
 if (!file.exists(outfile)) {
   X = training %>% 
     select(-scan_id, 
@@ -105,7 +109,6 @@ if (!file.exists(outfile)) {
   X = X %>% 
     as.data.frame
   X$y = factor(X$y)
-  num.trees = 500
   
   mod = ranger(y ~ ., data = X, 
                num.trees = num.trees,
@@ -120,22 +123,28 @@ if (!file.exists(outfile)) {
 mod
 # mod = readRDS( file.path("predictions", "quick_20_trees.rds"))
 
-test_outfile = file.path("predictions",
-                         paste0("test_", ioutcome, ".rds"))
 testing = testing %>% 
   select(-one_of(outcomes))
-out = rep(NA, nrow(testing))
-index = testing$n_voxels > 0
-stopifnot(!any(is.na(testing[index,])))
 
-pred = predict(mod, data = testing[index, ],
-               num.threads = nthreads)
-pred = pred$predictions[, "1"]
-
-out[index] = pred
-out[is.na(out)] = 0
-testing$Label = out
-out = testing %>% 
-  select(ID, Label) %>% 
-  mutate(outcome = ioutcome)
-readr::write_rds(out, path = test_outfile)
+test_outfile = file.path(
+  "predictions",
+  paste0("rf_test_", ioutcome, "_", 
+         num.trees,
+         ".rds"))
+if (!file.exists(test_outfile)) {
+  out = rep(NA, nrow(testing))
+  index = testing$n_voxels > 0
+  stopifnot(!any(is.na(testing[index,])))
+  
+  pred = predict(mod, data = testing[index, ],
+                 num.threads = nthreads)
+  pred = pred$predictions[, "1"]
+  
+  out[index] = pred
+  out[is.na(out)] = 0
+  testing$Label = out
+  out = testing %>% 
+    select(ID, Label) %>% 
+    mutate(outcome = ioutcome)
+  readr::write_rds(out, path = test_outfile)
+}

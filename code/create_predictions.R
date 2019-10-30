@@ -24,6 +24,20 @@ train = df %>%
     subarachnoid,
     subdural) %>% 
   gather(outcome, value = Label, -ID, -scan_id)
+test_id_outcome = df %>% 
+  filter(group == "test") %>% 
+  select(
+    ID,
+    any,
+    epidural,
+    intraparenchymal,
+    intraventricular,
+    subarachnoid,
+    subdural) %>%   
+  gather(outcome, value = Label, -ID) %>% 
+  unite(ID, outcome, col = "ID", sep = "_") %>% 
+  arrange(ID) %>% 
+  select(ID)
 
 scan_prev = train %>% 
   group_by(scan_id, outcome) %>% 
@@ -34,6 +48,37 @@ scan_prev = train %>%
 prev = train %>% 
   group_by(outcome) %>% 
   summarise(prevalence = mean(Label))
+
+##########################################
+# Adding in RF Model
+##########################################
+outcomes = c("any", "epidural", "intraparenchymal", "intraventricular", 
+             "subarachnoid", "subdural")
+num.trees = 500
+results = vector(mode = "list", length = length(outcomes))
+names(results) = outcomes
+ioutcome = outcomes[1]
+for (ioutcome in outcomes) {
+  print(ioutcome)
+  test_outfile = file.path(
+    "predictions",
+    paste0("rf_test_", ioutcome, "_", 
+           num.trees,
+           ".rds"))
+  results[[ioutcome]] = readr::read_rds(path = test_outfile)
+}
+results = bind_rows(results)
+wide = tidyr::spread(results, outcome, Label)
+stopifnot(!any(is.na(wide)))
+results = results %>% 
+  unite(ID, outcome, col = "ID", sep = "_") %>% 
+  arrange(ID)
+results = left_join(test_id_outcome, results)
+results$Label[is.na(results$Label)] = 0
+write_test(results, 
+           path = file.path(
+             "predictions", 
+             paste0("rf_model_", num.trees, ".csv")))
 
 
 test_df = df %>% 
