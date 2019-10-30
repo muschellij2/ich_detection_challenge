@@ -357,6 +357,8 @@ for (iid in uids) {
       parameters = c(128, 128, dim(ss)[3]),
       interpolator = "linear",
       parameter_type = "voxels")
+    d_new = dim(ss)[1:2]
+    stopifnot(all(d_new == 128))
     # no 255
     imgs = apply(ss, 3, function(x) list(EBImage::as.Image(x)))
     imgs = lapply(imgs, function(x) x[[1]])
