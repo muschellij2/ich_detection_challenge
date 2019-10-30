@@ -53,7 +53,7 @@ Rnosave within_slice_stats.R -N STATS -t 1-200 \
 Rnosave collapse_stats.R -N COLLSTATS \
     -l mem_free=8G,h_vmem=9G -hold_jid STATS
     
-Rnosave fit_model.R -N MODEL -t 1-6 \
+Rnosave fit_model.R -N MODEL -t 1-12 \
     -l mem_free=20G,h_vmem=21G -hold_jid COLLSTATS    
     
 # Rnosave create_heads.R -N SS2  -t 1-200 \

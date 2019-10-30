@@ -335,7 +335,7 @@ for (iid in uids) {
   tiff_files = file.path("tiff_512", 
                          sub(".dcm", ".tiff", basename(run_df$file)))
   if (!all(file.exists(tiff_files))) {
-    ss = readnii(ss_robust_file)
+    ss = readnii(padded_file)
     # no 255
     ss = (ss - (-1024)) / (3071 - (-1024)) 
     imgs = apply(ss, 3, function(x) list(EBImage::as.Image(x)))
@@ -344,6 +344,27 @@ for (iid in uids) {
       EBImage::writeImage(img, file, compression = "LZW")
     }, imgs, tiff_files)
   }
+  
+  run_df = run_df %>% 
+    arrange(instance_number)
+  tiff_files = file.path("tiff_128", 
+                         sub(".dcm", ".tiff", basename(run_df$file)))
+  if (!all(file.exists(tiff_files))) {
+    ss = readnii(padded_file)
+    ss = (ss - (-1024)) / (3071 - (-1024)) 
+    ss = extrantsr::resample_image(
+      ss, 
+      parameters = c(128, 128, dim(ss)[3]),
+      interpolator = "linear",
+      parameter_type = "voxels")
+    # no 255
+    imgs = apply(ss, 3, function(x) list(EBImage::as.Image(x)))
+    imgs = lapply(imgs, function(x) x[[1]])
+    mapply(function(img, file) {
+      EBImage::writeImage(img, file, compression = "LZW")
+    }, imgs, tiff_files)
+  }
+  
   
   if (all(file.exists(c(ss_file, maskfile, outfile)))) {
     
