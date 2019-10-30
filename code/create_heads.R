@@ -281,21 +281,24 @@ for (iid in uids) {
     rm(xss)
   }
   
-  if (all(file.exists(ss_robust_file, robust_maskfile)) & 
-      !file.exists(n4_file)) {
-    # val = 1024
-    img = readnii(outfile)
-    robust_mask = readnii(robust_maskfile)
-    img = mask_img(img, robust_mask)
-    bc = bias_correct(
-      file = img, 
-      mask = robust_maskfile,
-      correction = "N4")
-    bc = mask_img(bc, robust_mask)
-    writenii(bc, n4_file)
-    rm(bc)
-  }
-  
+  # if (all(file.exists(ss_robust_file, robust_maskfile)) & 
+  #     !file.exists(n4_file)) {
+  #   # val = 1024
+  #   img = readnii(outfile)
+  #   robust_mask = readnii(robust_maskfile)
+  #   img = mask_img(img, robust_mask)
+  #   img_range = (3071 - (-1024))
+  #   img = (img - (-1024)) / img_range
+  #   bc = bias_correct(
+  #     file = img, 
+  #     mask = robust_maskfile,
+  #     correction = "N4")
+  #   bc = bc * img_range + -1024
+  #   bc = mask_img(bc, robust_mask)
+  #   writenii(bc, n4_file)
+  #   rm(bc)
+  # }
+
   if (all(file.exists(ss_robust_file, robust_maskfile)) & 
       !all(file.exists(reduced_file, padded_file))) {
     # val = 1024
