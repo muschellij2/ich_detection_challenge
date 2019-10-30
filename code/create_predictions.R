@@ -70,6 +70,7 @@ for (ioutcome in outcomes) {
 results = bind_rows(results)
 wide = tidyr::spread(results, outcome, Label)
 stopifnot(!any(is.na(wide)))
+xres = results
 results = results %>% 
   unite(ID, outcome, col = "ID", sep = "_") %>% 
   arrange(ID)
@@ -78,8 +79,24 @@ results$Label[is.na(results$Label)] = 0
 write_test(results, 
            path = file.path(
              "predictions", 
-             paste0("rf_model_", num.trees, ".csv")))
+             paste0("rf_model_", num.trees, ".csv.gz")))
+# threshold results > 0.5
+write_test(results, 
+           path = file.path(
+             "predictions", 
+             paste0("rf_model_", num.trees, ".csv.gz")))
 
+test = xres %>% 
+  left_join(prev) %>% 
+  mutate(Label = Label * prevalence) %>% 
+  unite(ID, outcome, col = ID, sep = "_") %>% 
+  select(-prevalence)
+test = left_join(test_id_outcome, test)
+test$Label[is.na(test$Label)] = 0
+write_test(test, 
+           path = file.path(
+             "predictions", 
+             paste0("rf_model_", num.trees, "_prevalence.csv.gz")))
 
 test_df = df %>% 
   filter(group == "test") %>% 
@@ -95,18 +112,18 @@ test = test_df %>%
   unite(ID, outcome, col = ID, sep = "_")
 test = test %>% 
   mutate(Label = 0)
-write_test(test, path = file.path("predictions", "all_zero.csv"))
+write_test(test, path = file.path("predictions", "all_zero.csv.gz"))
 
 test = test %>% 
   mutate(Label = 1)
-write_test(test, path = file.path("predictions", "all_ones.csv"))
+write_test(test, path = file.path("predictions", "all_ones.csv.gz"))
 
 test = test_df %>% 
   select(-Label) %>% 
   left_join(prev) %>% 
   rename(Label = prevalence) %>% 
   unite(ID, outcome, col = ID, sep = "_")
-write_test(test, path = file.path("predictions", "prevalence.csv"))
+write_test(test, path = file.path("predictions", "prevalence.csv.gz"))
 
 
 test = test_df %>% 
@@ -114,6 +131,6 @@ test = test_df %>%
   left_join(scan_prev) %>% 
   rename(Label = prevalence)  %>% 
   unite(ID, outcome, col = ID, sep = "_")
-write_test(test, path = file.path("predictions", "scan_prevalence.csv"))
+write_test(test, path = file.path("predictions", "scan_prevalence.csv.gz"))
 
 

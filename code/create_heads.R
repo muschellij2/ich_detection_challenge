@@ -60,6 +60,18 @@ for (iid in uids) {
   
   # maskfile = sub("[.]nii", "_Mask.nii", ss_file)
   outfile = unique(run_df$outfile)
+  
+  reduced_file = file.path("reduced", basename(outfile))
+  padded_file = file.path("reduced", 
+                          sub("[.]", "_512.", basename(outfile)))
+  reduced_maskfile = file.path("reduced", basename(out_maskfile))
+  padded_maskfile = sub("[.]nii", "_Mask.nii", padded_file)
+
+  reduced_rds = file.path("reduced", 
+                          paste0(nii.stub(outfile, bn = TRUE), 
+                                 ".rds"))
+  
+  
   n4_file = file.path("n4", basename(outfile))
   alt_outfile = unique(run_df$alt_outfile)
   alt_ss_file = sub("ss/", "eq_ss/", ss_file)
@@ -283,6 +295,37 @@ for (iid in uids) {
     writenii(bc, n4_file)
     rm(bc)
   }
+  
+  if (all(file.exists(ss_robust_file, robust_maskfile)) & 
+      !all(file.exists(reduced_file, padded_file))) {
+    # val = 1024
+    robust_mask = readnii(robust_maskfile)
+    inds = getEmptyImageDimensions(robust_mask)
+    # keep z fixed so keep with instance_numbers
+    inds[[3]] = seq(1, dim(robust_mask)[3])
+    readr::write_rds(inds, reduced_rds)
+    
+    robust_mask = applyEmptyImageDimensions(robust_mask, inds = inds)
+    writenii(robust_mask, reduced_maskfile)
+    # rm(robust_mask)
+    ss = readnii(ss_robust_file)
+    ss = applyEmptyImageDimensions(ss, inds = inds)
+    writenii(ss, reduced_file)
+    
+    d_new = dim(robust_mask)[1:2]
+    stopifnot(all(d_new <= 512))
+    kdim = rep(0, 3)
+    if (!all(d_new == 512)) {
+      kdim = c((512 - d_new)/2, 0)
+      robust_mask = zero_pad(robust_mask, kdim = kdim,
+                             pad_value = 0)
+      ss = zero_pad(ss, kdim = kdim,
+                    pad_value = -1024)    
+      stopifnot(all(dim(robust_mask)[1:2] == 512))
+    }
+    writenii(ss, padded_file)
+    writenii(robust_mask, padded_maskfile)
+  }  
   
   if (all(file.exists(c(ss_file, maskfile, outfile)))) {
     
