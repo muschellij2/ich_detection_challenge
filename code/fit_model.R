@@ -8,6 +8,13 @@ setwd(here::here())
 source("code/file_exists.R")
 
 nthreads = 1
+full_df = readr::read_rds("wide_headers_with_folds_outcomes.rds")
+full_df = full_df %>% 
+  select(scan_id, group, outfile) %>% 
+  distinct()
+all_scan_ids = unique(full_df$scan_id)
+full_data = split(full_df, full_df$group)
+rm(full_df)
 
 hdr = readr::read_rds("wide_headers.rds")
 cn = colnames(hdr)
@@ -18,7 +25,7 @@ full_outfile = file.path(
   "stats", 
   paste0("all_data.rds"))
 results = readr::read_rds(path = full_outfile)
-
+stopifnot(all( all_scan_ids %in% unique(results$scan_id)))
 df = results %>% 
   group_by(scan_id) %>% 
   mutate(z_mean = z - mean(z)) %>% 
@@ -66,6 +73,7 @@ testing = df %>%
 rm(df)
 training = training %>% 
   filter(n_voxels > 0) 
+stopifnot(all( full_data$train$scan_id %in% unique(training$scan_id)))
 
 outcomes = c("any", "epidural", "intraparenchymal", "intraventricular", 
              "subarachnoid", "subdural")
@@ -130,6 +138,9 @@ mod
 testing = testing %>% 
   select(-one_of(outcomes))
 
+stopifnot(all( full_data$test$scan_id %in% unique(testing$scan_id)))
+
+
 test_outfile = file.path(
   "predictions",
   paste0("rf_test_", ioutcome, "_", 
@@ -169,7 +180,7 @@ if (!file.exists(train_outfile)) {
   
   out[index] = pred
   out[is.na(out)] = 0
-  testing$Label = out
+  training$Label = out
   out = training %>% 
     select(ID, Label) %>% 
     mutate(outcome = ioutcome)
