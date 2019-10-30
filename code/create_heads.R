@@ -330,6 +330,17 @@ for (iid in uids) {
     writenii(robust_mask, padded_maskfile)
   }  
   
+  run_df = run_df %>% 
+    arrange(instance_number)
+  tiff_files = file.path("tiff_512", sub(".dcm", ".tiff", basename(run_df$file)))
+  ss = readnii(ss_robust_file)
+  ss = (ss - (-1024)) / (3071 - (-1024)) * 255
+  imgs = apply(ss, 3, function(x) list(EBImage::as.Image(x)))
+  imgs = lapply(imgs, function(x) x[[1]])
+  mapply(function(img, file) {
+    EBImage::writeImage(img, file, compression = "LZW")
+  }, imgs, tiff_files)
+  
   if (all(file.exists(c(ss_file, maskfile, outfile)))) {
     
     if (!file.exists(pngfile)) {

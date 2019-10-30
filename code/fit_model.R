@@ -75,7 +75,7 @@ if (is.na(iioutcome)) {
   iioutcome = 2
 }
 
-num.trees = 1000
+num.trees = 2000
 
 
 ioutcome = outcomes[iioutcome]

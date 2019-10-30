@@ -80,11 +80,39 @@ write_test(results,
            path = file.path(
              "predictions", 
              paste0("rf_model_", num.trees, ".csv.gz")))
-# threshold results > 0.5
+
+results$Label = as.numeric(results$Label > 0.5)
 write_test(results, 
            path = file.path(
              "predictions", 
-             paste0("rf_model_", num.trees, ".csv.gz")))
+             paste0("rf_model_", num.trees, "_thresh.csv.gz")))
+
+funcs = c("sum", "mean", "median", "max", "min")
+
+for (ifunc in funcs) {
+  print(ifunc)
+  func = get(ifunc)
+  results = xres %>% 
+    filter(outcome != "any") %>% 
+    arrange(ID)  
+  any_res = results %>% 
+    group_by(ID) %>% 
+    summarize(Label = func(Label)) %>% 
+    mutate(outcome = "any",
+           Label = ifelse(Label > 1, 1, Label))
+  results = bind_rows(results, any_res) %>% 
+    arrange(ID) %>% 
+    unite(ID, outcome, col = ID, sep = "_") 
+  
+  results = left_join(test_id_outcome, results)
+  results$Label[is.na(results$Label)] = 0
+  # threshold results > 0.5
+  write_test(results, 
+             path = file.path(
+               "predictions", 
+               paste0("rf_model_", num.trees, "_", 
+                      ifunc, "Any.csv.gz")))
+}
 
 test = xres %>% 
   left_join(prev) %>% 
