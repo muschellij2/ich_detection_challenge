@@ -11,8 +11,13 @@ file_exists = function(...) {
   udn = unique(df$dn)
   res = lapply(udn, function(path) {
     bn = list.files(path, recursive = FALSE, full.names = FALSE, all.files = TRUE)
+    exists = TRUE
+    if (length(bn) == 0) {
+      exists = NA
+      bn = NA    
+    }
     bn = tolower(bn)
-    data.frame(dn = path, bn = bn, exists = TRUE, stringsAsFactors = FALSE)
+    data.frame(dn = path, bn = bn, exists = exists, stringsAsFactors = FALSE)
   })
   res = do.call(rbind, res)
   lj = merge(df, res, all.x = TRUE, sort = FALSE)

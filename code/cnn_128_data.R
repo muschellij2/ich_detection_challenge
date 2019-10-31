@@ -17,12 +17,15 @@ dir.create("cnn")
 out_dirs = file.path("cnn", outcomes)
 sapply(out_dirs, dir.create, showWarnings = FALSE)
 
+out_type = "png"
 if (!file.exists(train_outcomes)) {
   df = readr::read_rds("wide_headers_with_folds_outcomes.rds")
   df = df %>% 
-    mutate(tiff = file.path(
-      "tiff_128", 
-      sub(".dcm", ".tiff", basename(file))))
+    mutate(image = 
+             file.path(paste0(out_type, "_128"),
+                       sub(".dcm", 
+                           paste0(".", out_type), 
+                           basename(file))))
   
   train = df %>% 
     arrange(scan_id, instance_number) %>% 
@@ -30,12 +33,12 @@ if (!file.exists(train_outcomes)) {
     filter(any > 0) 
   rm(df)
   train = train %>% 
-    select(scan_id, tiff, one_of(outcomes))
+    select(scan_id, image, one_of(outcomes))
   train = train %>% 
     group_by(scan_id) %>% 
     mutate(prob = runif(1),
            new_group = ifelse(prob >= keep_pct, "train", "validation"),
-           new_file = file.path(new_group, basename(tiff)))
+           new_file = file.path(new_group, basename(image)))
   
   readr::write_rds(train, train_outcomes)
 } else {
@@ -45,15 +48,15 @@ if (!file.exists(train_outcomes)) {
 fe = file_exists(train$new_file)
 if (any(!fe)) {
   to_copy = train[!fe, ]
-  file.copy(to_copy$tiff, to_copy$new_file)
+  file.copy(to_copy$image, to_copy$new_file)
 }
 
 outfile = file.path("predictions", "cnn_128_data.rds")
 
 if (!file.exists(outfile)) {
   
-  tiffs = train %>% 
-    pull(tiff)
+  images = train %>% 
+    pull(image)
   read_img = function(x) {
     img = EBImage::readImage(x)
     c(imageData(img))
@@ -61,7 +64,7 @@ if (!file.exists(outfile)) {
   mat = matrix(NA_real_, nrow = nrow(train), ncol = 128*128)
   for (irow in 1:nrow(train)) {
     print(irow)
-    img = read_img(tiffs[irow])
+    img = read_img(images[irow])
     mat[irow, ] = img
   }
   
