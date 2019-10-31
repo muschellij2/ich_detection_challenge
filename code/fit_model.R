@@ -93,6 +93,7 @@ if (is.na(iscen)) {
 }
 
 
+print(iscen)
 ieg = eg[iscen,]
 ioutcome = ieg$outcome
 num.trees = ieg$num.trees
@@ -138,7 +139,7 @@ if (!file.exists(outfile)) {
 } else {
   mod = readr::read_rds(outfile)
 }
-mod
+print(mod)
 # mod = readRDS( file.path("predictions", "quick_20_trees.rds"))
 
 testing = testing %>% 
@@ -176,7 +177,7 @@ train_outfile = file.path(
          num.trees,
          ".rds"))
 training = xtraining
-rm(xtraining)
+# rm(xtraining)
 if (!file.exists(train_outfile)) {
   stopifnot(nrow(training) == n_train)
   out = rep(NA, nrow(training))

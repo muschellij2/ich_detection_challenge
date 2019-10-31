@@ -56,6 +56,8 @@ long = train %>%
                          ifelse(value == 1, "present", "absent"),
                          basename(image)))  
 
+udn = unique(dirname(long$new_file))
+tmp = sapply(udn, dir.create, recursive = TRUE, showWarnings = FALSE)
 
 fe = file_exists(long$new_file)
 fe_original = file_exists(long$image)
