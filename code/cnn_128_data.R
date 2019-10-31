@@ -13,8 +13,9 @@ outcomes = c("any", "epidural", "intraparenchymal", "intraventricular",
 train_outcomes = file.path("predictions", 
                            "training_outcomes.rds")
 keep_pct = 0.8
-dir.create("train")
-dir.create("validation")
+dir.create("cnn")
+out_dirs = file.path("cnn", outcomes)
+sapply(out_dirs, dir.create, showWarnings = FALSE)
 
 if (!file.exists(train_outcomes)) {
   df = readr::read_rds("wide_headers_with_folds_outcomes.rds")

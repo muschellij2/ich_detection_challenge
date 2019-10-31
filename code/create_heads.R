@@ -54,7 +54,6 @@ for (iid in uids) {
   run_df = df[ df$index == iid, ]
   
   
-  
   ss_file = unique(run_df$ss_file)
   maskfile = unique(run_df$maskfile)
   out_maskfile = sub("[.]nii", "_Mask.nii", ss_file)
@@ -338,10 +337,14 @@ for (iid in uids) {
     writenii(robust_mask, padded_maskfile)
   }  
   
+  out_type = "png"
+  compression = ifelse(out_type == "tiff", "LZW", "none")
   run_df = run_df %>% 
     arrange(instance_number)
-  tiff_files = file.path("tiff_512", 
-                         sub(".dcm", ".tiff", basename(run_df$file)))
+  tiff_files = file.path(paste0(out_type, "_512"),
+                         sub(".dcm", 
+                             paste0(".", out_type), 
+                             basename(run_df$file)))
   if (!all(file.exists(tiff_files))) {
     ss = readnii(padded_file)
     # no 255
@@ -349,14 +352,16 @@ for (iid in uids) {
     imgs = apply(ss, 3, function(x) list(EBImage::as.Image(x)))
     imgs = lapply(imgs, function(x) x[[1]])
     mapply(function(img, file) {
-      EBImage::writeImage(img, file, compression = "LZW")
+      EBImage::writeImage(img, file, compression = compression)
     }, imgs, tiff_files)
   }
   
   run_df = run_df %>% 
     arrange(instance_number)
-  tiff_files = file.path("tiff_128", 
-                         sub(".dcm", ".tiff", basename(run_df$file)))
+  tiff_files = file.path(paste0(out_type, "_128"),
+                         sub(".dcm", 
+                             paste0(".", out_type), 
+                             basename(run_df$file)))
   if (!all(file.exists(tiff_files))) {
     ss = readnii(padded_file)
     ss = (ss - (-1024)) / (3071 - (-1024)) 
@@ -371,14 +376,20 @@ for (iid in uids) {
     imgs = apply(ss, 3, function(x) list(EBImage::as.Image(x)))
     imgs = lapply(imgs, function(x) x[[1]])
     mapply(function(img, file) {
-      EBImage::writeImage(img, file, compression = "LZW")
+      EBImage::writeImage(
+        img, file, 
+        compression = compression)
     }, imgs, tiff_files)
   }
+  
   all_run_df = all_run_df %>% 
     mutate(tiff_file = file.path(
-      "tiff_128", 
-      sub(".dcm", ".tiff", basename(file)))    
+      paste0(out_type, "_128"),
+      sub(".dcm",                             
+          paste0(".", out_type), 
+          basename(file)))    
     )
+  
   if (duplicated_data) {
     if (!all(file.exists(all_run_df$tiff_file))) {
       wide = all_run_df %>% 

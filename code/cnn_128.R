@@ -1,8 +1,8 @@
 
 
-library(keras)
 
 rm(list = ls())
+library(keras)
 library(EBImage)
 library(dplyr)
 library(tidyr)
@@ -15,53 +15,38 @@ outcomes = c("any", "epidural", "intraparenchymal", "intraventricular",
 
 train_outcomes = file.path("predictions", 
                            "training_outcomes.rds")
-if (!file.exists(train_outcomes)) {
-  df = readr::read_rds("wide_headers_with_folds_outcomes.rds")
-  df = df %>% 
-    mutate(tiff = file.path(
-      "tiff_128", 
-      sub(".dcm", ".tiff", basename(file))))
-  
-  train = df %>% 
-    arrange(scan_id, instance_number) %>% 
-    filter(group == "train") %>% 
-    filter(any > 0) 
-  rm(df)
-  train = train %>% 
-    select(scan_id, tiff, one_of(outcomes))
-  readr::write_rds(train, train_outcomes)
-} else {
-  train = readr::read_rds(train_outcomes)
-}
+train = readr::read_rds(train_outcomes)
 
 outfile = file.path("predictions", "cnn_128_data.rds")
+mat = readr::read_rds(outfile)
 
-if (!file.exists(outfile)) {
-  
-  tiffs = train %>% 
-    pull(tiff)
-  read_img = function(x) {
-    img = EBImage::readImage(x)
-    c(imageData(img))
-  }
-  mat = matrix(NA_real_, nrow = nrow(train), ncol = 128*128)
-  for (irow in 1:nrow(train)) {
-    print(irow)
-    img = read_img(tiffs[irow])
-    mat[irow, ] = img
-  }
-  
-  readr::write_rds(mat, 
-                   path = outfile)
-  
-} else {
-  mat = readr::read_rds(outfile)
-}
+train_dir = "train"
+validation_dir = "validation"
+# All images will be rescaled by 1/255
+train_datagen <- image_data_generator()
+validation_datagen <- image_data_generator()
+train_generator <- flow_images_from_directory(
+  # This is the target directory
+  train_dir,
+  # This is the data generator
+  train_datagen,
+  # All images will be resized to 150x150
+  target_size = c(128, 128),
+  batch_size = 20,
+  # Since we use binary_crossentropy loss, we need binary labels
+  class_mode = "binary"
+)
 
+validation_generator <- flow_images_from_directory(
+  validation_dir,
+  validation_datagen,
+  target_size = c(128, 128),
+  batch_size = 20,
+  class_mode = "binary"
+)
 
 
 datagen <- image_data_generator(
-  rescale = 1/255,
   rotation_range = 40,
   width_shift_range = 0.2,
   height_shift_range = 0.2,
@@ -70,6 +55,10 @@ datagen <- image_data_generator(
   horizontal_flip = TRUE,
   fill_mode = "nearest"
 )
+
+batch <- generator_next(train_generator)
+str(batch)
+
 
 model <- keras_model_sequential() %>% 
   layer_conv_2d(filters = 32, kernel_size = c(3, 3), activation = "relu",
@@ -84,6 +73,17 @@ model <- keras_model_sequential() %>%
   layer_flatten() %>% 
   layer_dense(units = 512, activation = "relu") %>% 
   layer_dense(units = 1, activation = "sigmoid")
+
+history <- model %>% fit_generator(
+  train_generator,
+  steps_per_epoch = 100,
+  epochs = 30,
+  validation_data = validation_generator,
+  validation_steps = 50
+)
+
+model %>% save_model_hdf5("rstudio_model.h5")
+
 
 model %>% compile(
   loss = "binary_crossentropy",
