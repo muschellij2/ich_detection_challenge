@@ -66,6 +66,8 @@ training = df %>%
   filter(group == "train") %>% 
   select(-group)
 
+xtraining = training
+
 testing = df %>% 
   filter(group == "test") %>% 
   select(-group)
@@ -129,6 +131,7 @@ if (!file.exists(outfile)) {
   attr(mod, "outcome_used") = ioutcome
   readr::write_rds(mod, 
                    path = outfile)
+  rm(X)
 } else {
   mod = readr::read_rds(outfile)
 }
@@ -169,6 +172,8 @@ train_outfile = file.path(
   paste0("rf_train_", ioutcome, "_", 
          num.trees,
          ".rds"))
+training = xtraining
+rm(xtraining)
 if (!file.exists(train_outfile)) {
   out = rep(NA, nrow(training))
   index = training$n_voxels > 0
