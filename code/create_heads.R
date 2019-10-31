@@ -5,6 +5,7 @@ library(neurobase)
 library(extrantsr)
 library(ichseg)
 library(dplyr)
+library(tidyr)
 library(fs)
 library(dcmtk)
 library(fslr)
@@ -27,7 +28,7 @@ df = all_df
 # ID_02c48e85-ID_bd2131d216 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
-  ifold = 27
+  ifold = 1
 }
 
 df = df[ df$fold == ifold,]
@@ -90,11 +91,17 @@ for (iid in uids) {
   # sorting is below this, can do x y z here
   run_df = run_df %>%   
     group_by(x, y, z, PatientID, SeriesInstanceUID) %>% 
-    mutate(n_index = seq(n())) %>% 
+    mutate(n_index = seq(n()),
+           total_slices = n()) %>% 
     ungroup()
+  duplicated_data = FALSE
   if (!all(run_df$n_index == 1)) {
+    # we need to fix this
+    # need slice_number then
     warning("Duplicated data!")
+    duplicated_data = TRUE
   }
+  all_run_df = run_df
   run_df = run_df %>% 
     filter(n_index == 1)
   # make sure for ordering
@@ -261,7 +268,8 @@ for (iid in uids) {
     rm(ss)
   }
   
-  if (!all(file.exists(ss_robust_file, robust_maskfile)) & file.exists(outfile)) {
+  if (!all(file.exists(ss_robust_file, robust_maskfile)) & 
+      file.exists(outfile)) {
     val = 1024
     img = readnii(outfile) + val
     tfile = tempfile(fileext = ".nii.gz")
@@ -365,6 +373,30 @@ for (iid in uids) {
     mapply(function(img, file) {
       EBImage::writeImage(img, file, compression = "LZW")
     }, imgs, tiff_files)
+  }
+  all_run_df = all_run_df %>% 
+    mutate(tiff_file = file.path(
+      "tiff_128", 
+      sub(".dcm", ".tiff", basename(file)))    
+    )
+  if (duplicated_data) {
+    if (!all(file.exists(all_run_df$tiff_file))) {
+      wide = all_run_df %>% 
+        filter(total_slices > 1) %>% 
+        select(tiff_file, n_index, x, y, z) %>% 
+        tidyr::spread(n_index, value = tiff_file) %>% 
+        unite(x,y,z, col = xyz) %>% 
+        rename(original = `1`)
+      wide = split(wide, wide$xyz)
+      xx  = lapply(wide, function(r) {
+        orig = r$original
+        r = r %>% 
+          select(-xyz, -original)
+        r = unlist(r)
+        orig = rep(orig, length = length(r))
+        file.copy(orig, r, overwrite = TRUE)
+      })
+    }
   }
   
   
