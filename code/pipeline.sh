@@ -59,6 +59,8 @@ Rnosave fit_model.R -N MODEL -t 7-12 \
 Rnosave cnn_128_data.R -N DATACNN \
     -l mem_free=80G,h_vmem=81G
         
+qsub -cwd -l gpu,mem_free=100G,h_vmem=100G,h_stack=128M \
+-N CNNMOD cnn.sh
 # Rnosave create_heads.R -N SS2  -t 1-200 \
 #     -l mem_free=5G,h_vmem=6G -hold_jid_ad SS
 #     
