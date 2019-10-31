@@ -14,6 +14,10 @@ file_exists = function(..., verbose = TRUE) {
     message(msg)
   }
   res = lapply(udn, function(path) {
+    if (verbose > 1) {
+      msg = paste0("Listing ", path, " directory")
+      message(msg)
+    }
     bn = list.files(path, recursive = FALSE, full.names = FALSE, all.files = TRUE)
     exists = TRUE
     if (length(bn) == 0) {
