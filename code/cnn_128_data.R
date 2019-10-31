@@ -48,7 +48,9 @@ if (!file.exists(train_outcomes)) {
 fe = file_exists(train$new_file)
 if (any(!fe)) {
   to_copy = train[!fe, ]
-  file.copy(to_copy$image, to_copy$new_file)
+  for (iimage in seq(nrow(to_copy))) {
+    file.copy(to_copy$image[iimage], to_copy$new_file[iimage])
+  }
 }
 
 outfile = file.path("predictions", "cnn_128_data.rds")
