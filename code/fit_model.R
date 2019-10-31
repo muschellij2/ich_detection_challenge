@@ -89,7 +89,7 @@ eg = expand.grid(outcome = outcomes,
 
 iscen = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(iscen)) {
-  iscen = 2
+  iscen = 7
 }
 
 

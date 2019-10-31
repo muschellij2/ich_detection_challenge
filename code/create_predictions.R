@@ -9,6 +9,9 @@ df = readr::read_rds("wide_headers_with_folds_outcomes.rds")
 write_test = function(x, ...) {
   stopifnot(nrow(x) == 471270)
   stopifnot(all(colnames(x) == c("ID", "Label")))
+  stopifnot(!any(is.na(x$Label)))
+  x$Label[ x$Label > 1 ] = 1
+  x$Label[ x$Label < 0 ] = 0
   readr::write_csv(x, ...)
 }
 
@@ -54,7 +57,7 @@ prev = train %>%
 ##########################################
 outcomes = c("any", "epidural", "intraparenchymal", "intraventricular", 
              "subarachnoid", "subdural")
-num.trees = 500
+num.trees = 2000
 results = vector(mode = "list", length = length(outcomes))
 names(results) = outcomes
 ioutcome = outcomes[1]

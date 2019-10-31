@@ -44,7 +44,7 @@ if (!file.exists(train_outcomes)) {
 } else {
   train = readr::read_rds(train_outcomes)
 }
-long = train %>% 
+xlong = train %>% 
   ungroup() %>% 
   select(image, new_group, one_of(outcomes)) %>% 
   select(-any) %>% 
@@ -56,17 +56,34 @@ long = train %>%
                          ifelse(value == 1, "present", "absent"),
                          basename(image)))  
 
-udn = unique(dirname(long$new_file))
+udn = unique(dirname(xlong$new_file))
 tmp = sapply(udn, dir.create, recursive = TRUE, showWarnings = FALSE)
 
-fe = file_exists(long$new_file)
-fe_original = file_exists(long$image)
-if (any(!fe)) {
-  to_copy = long[!fe & fe_original, ]
-  for (iimage in seq(nrow(to_copy))) {
-    file.copy(to_copy$image[iimage], to_copy$new_file[iimage])
+iscen = as.numeric(Sys.getenv("SGE_TASK_ID"))
+if (is.na(iscen)) {
+  iscen = 2
+}
+ioutcome = outcomes[iscen]
+
+# for (ioutcome in outcomes) {
+if (ioutcome != "any") {
+  
+  long = xlong
+  print(ioutcome)
+  long = long %>% 
+    filter(outcome == ioutcome)
+  fe = file_exists(long$new_file)
+  fe_original = file_exists(long$image)
+  if (any(!fe)) {
+    to_copy = long[!fe & fe_original, ]
+    print(nrow(to_copy))
+    for (iimage in seq(nrow(to_copy))) {
+      print(iimage)
+      file.copy(to_copy$image[iimage], to_copy$new_file[iimage])
+    }
   }
 }
+# }
 
 outfile = file.path("predictions", "cnn_128_data.rds")
 
