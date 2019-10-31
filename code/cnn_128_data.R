@@ -44,10 +44,23 @@ if (!file.exists(train_outcomes)) {
 } else {
   train = readr::read_rds(train_outcomes)
 }
+long = train %>% 
+  ungroup() %>% 
+  select(image, new_group, one_of(outcomes)) %>% 
+  select(-any) %>% 
+  gather(outcome, value = value, -image, -new_group) %>% 
+  mutate(
+    new_file = file.path("cnn", 
+                         outcome, 
+                         new_group, 
+                         ifelse(value == 1, "present", "absent"),
+                         basename(image)))  
 
-fe = file_exists(train$new_file)
+
+fe = file_exists(long$new_file)
+fe_original = file_exists(long$image)
 if (any(!fe)) {
-  to_copy = train[!fe, ]
+  to_copy = long[!fe & fe_original, ]
   for (iimage in seq(nrow(to_copy))) {
     file.copy(to_copy$image[iimage], to_copy$new_file[iimage])
   }
