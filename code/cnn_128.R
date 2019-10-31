@@ -19,25 +19,30 @@ train = df %>%
   filter(any > 0) 
 rm(df)
 
+outfile = file.path("predictions", "cnn_128_data.rds")
 
-tiffs = train %>% 
-  pull(tiff)
-ioutcome = c("epidural")
-y = train %>% 
-  select(one_of(ioutcome)) %>% 
-  pull()
-train = train %>% 
-  select(scan_id, tiff, one_of(outcomes))
-read_img = function(x) {
-  img = EBImage::readImage(x)
-  c(imageData(img))
+if (!file.exists(outfile)) {
+  
+  tiffs = train %>% 
+    pull(tiff)
+  ioutcome = c("epidural")
+  y = train %>% 
+    select(one_of(ioutcome)) %>% 
+    pull()
+  train = train %>% 
+    select(scan_id, tiff, one_of(outcomes))
+  read_img = function(x) {
+    img = EBImage::readImage(x)
+    c(imageData(img))
+  }
+  mat = matrix(NA_real_, nrow = nrow(train), ncol = 128*128)
+  for (irow in 1:nrow(train)) {
+    print(irow)
+    img = read_img(tiffs[irow])
+    mat[irow, ] = img
+  }
+  
+  readr::write_rds(mat, 
+                   path = outfile)
+  
 }
-mat = matrix(NA_real_, nrow = nrow(train), ncol = 128*128)
-for (irow in 1:nrow(train)) {
-  print(irow)
-  img = read_img(tiffs[irow])
-  mat[irow, ] = img
-}
-
-readr::write_rds(mat, 
-                 path = file.path("predictions", "cnn_128_data.rds"))
