@@ -56,7 +56,7 @@ Rnosave collapse_stats.R -N COLLSTATS \
 Rnosave fit_model.R -N MODEL -t 7-12 \
     -l mem_free=40G,h_vmem=41G -hold_jid COLLSTATS    
     
-Rnosave cnn_128_data.R -N CNN \
+Rnosave cnn_128_data.R -N DATACNN \
     -l mem_free=80G,h_vmem=81G
         
 # Rnosave create_heads.R -N SS2  -t 1-200 \
