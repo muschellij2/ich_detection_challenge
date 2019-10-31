@@ -89,7 +89,5 @@ if (!file.exists(out_model)) {
     validation_steps = 50
   )
   
-  model %>% save_model_hdf5(
-    paste0("cnn", paste0("rstudio_model_", ioutcome, ".h5"))
-  )
+  model %>% save_model_hdf5(out_model)
 }
