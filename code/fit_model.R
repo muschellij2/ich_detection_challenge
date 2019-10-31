@@ -49,6 +49,9 @@ df = df %>%
          pitch_sd  = ifelse(n_voxels == 1, 0, pitch_sd),
          prob_sd  = ifelse(n_voxels == 1, 0, prob_sd)
   )
+tab = table(df$group)
+n_train = tab["train"]
+n_test = tab["test"]
 
 df = df %>% 
   select(
@@ -88,6 +91,8 @@ iscen = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(iscen)) {
   iscen = 2
 }
+
+
 ieg = eg[iscen,]
 ioutcome = ieg$outcome
 num.trees = ieg$num.trees
@@ -115,9 +120,7 @@ if (!file.exists(outfile)) {
   
   X = X %>% 
     select(-one_of(outcomes))
-  if (!interactive()) {
-    rm(training)
-  }
+  rm(training)
   stopifnot(!any(is.na(X)))
   
   X = X %>% 
@@ -175,6 +178,7 @@ train_outfile = file.path(
 training = xtraining
 rm(xtraining)
 if (!file.exists(train_outfile)) {
+  stopifnot(nrow(training) == n_train)
   out = rep(NA, nrow(training))
   index = training$n_voxels > 0
   stopifnot(!any(is.na(training[index,])))
