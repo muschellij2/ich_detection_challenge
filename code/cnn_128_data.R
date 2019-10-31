@@ -66,7 +66,8 @@ if (!file.exists(outfile)) {
   }
   
   readr::write_rds(mat, 
-                   path = outfile)
+                   path = outfile, 
+                   compress = "xz")
   
 } else {
   mat = readr::read_rds(outfile)
