@@ -1,7 +1,3 @@
-
-
-library(keras)
-
 rm(list = ls())
 library(EBImage)
 library(dplyr)
@@ -9,12 +5,17 @@ library(tidyr)
 setwd(here::here())
 source("code/file_exists.R")
 
+set.seed(20191031)
 outcomes = c("any", "epidural", "intraparenchymal", "intraventricular", 
              "subarachnoid", "subdural")
 
 
 train_outcomes = file.path("predictions", 
                            "training_outcomes.rds")
+keep_pct = 0.8
+dir.create("train")
+dir.create("validation")
+
 if (!file.exists(train_outcomes)) {
   df = readr::read_rds("wide_headers_with_folds_outcomes.rds")
   df = df %>% 
@@ -29,9 +30,21 @@ if (!file.exists(train_outcomes)) {
   rm(df)
   train = train %>% 
     select(scan_id, tiff, one_of(outcomes))
+  train = train %>% 
+    group_by(scan_id) %>% 
+    mutate(prob = runif(1),
+           new_group = ifelse(prob >= keep_pct, "train", "validation"),
+           new_file = file.path(new_group, basename(tiff)))
+  
   readr::write_rds(train, train_outcomes)
 } else {
   train = readr::read_rds(train_outcomes)
+}
+
+fe = file_exists(train$new_file)
+if (any(!fe)) {
+  to_copy = train[!fe, ]
+  file.copy(to_copy$tiff, to_copy$new_file)
 }
 
 outfile = file.path("predictions", "cnn_128_data.rds")
@@ -58,35 +71,3 @@ if (!file.exists(outfile)) {
   mat = readr::read_rds(outfile)
 }
 
-
-
-datagen <- image_data_generator(
-  rescale = 1/255,
-  rotation_range = 40,
-  width_shift_range = 0.2,
-  height_shift_range = 0.2,
-  shear_range = 0.2,
-  zoom_range = 0.2,
-  horizontal_flip = TRUE,
-  fill_mode = "nearest"
-)
-
-model <- keras_model_sequential() %>% 
-  layer_conv_2d(filters = 32, kernel_size = c(3, 3), activation = "relu",
-                input_shape = c(128, 128)) %>% 
-  layer_max_pooling_2d(pool_size = c(2, 2)) %>% 
-  layer_conv_2d(filters = 64, kernel_size = c(3, 3), activation = "relu") %>% 
-  layer_max_pooling_2d(pool_size = c(2, 2)) %>% 
-  layer_conv_2d(filters = 128, kernel_size = c(3, 3), activation = "relu") %>% 
-  layer_max_pooling_2d(pool_size = c(2, 2)) %>% 
-  layer_conv_2d(filters = 128, kernel_size = c(3, 3), activation = "relu") %>% 
-  layer_max_pooling_2d(pool_size = c(2, 2)) %>% 
-  layer_flatten() %>% 
-  layer_dense(units = 512, activation = "relu") %>% 
-  layer_dense(units = 1, activation = "sigmoid")
-
-model %>% compile(
-  loss = "binary_crossentropy",
-  optimizer = optimizer_rmsprop(lr = 1e-4),
-  metrics = c("acc")
-)
