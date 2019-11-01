@@ -15,7 +15,11 @@ train = readr::read_rds(train_outcomes)
 # outfile = file.path("predictions", "cnn_128_data.rds")
 # mat = readr::read_rds(outfile)
 
-ioutcome = "intraparenchymal"
+ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
+if (is.na(ifold)) {
+  ifold = 2
+}
+ioutcome = outcomes[ifold]
 out_model =   file.path("cnn", paste0("rstudio_model_", ioutcome, ".h5"))
 if (!file.exists(out_model)) {
   train_dir = file.path("cnn", ioutcome, "train") 
