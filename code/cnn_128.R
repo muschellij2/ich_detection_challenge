@@ -16,7 +16,7 @@ train = readr::read_rds(train_outcomes)
 # mat = readr::read_rds(outfile)
 
 ioutcome = "epidural"
-out_model =   paste0("cnn", paste0("rstudio_model_", ioutcome, ".h5"))
+out_model =   file.path("cnn", paste0("rstudio_model_", ioutcome, ".h5"))
 if (!file.exists(out_model)) {
   train_dir = file.path("cnn", ioutcome, "train") 
   validation_dir = file.path("cnn", ioutcome, "validation") 
