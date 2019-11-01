@@ -15,7 +15,7 @@ train = readr::read_rds(train_outcomes)
 # outfile = file.path("predictions", "cnn_128_data.rds")
 # mat = readr::read_rds(outfile)
 
-ioutcome = "epidural"
+ioutcome = "intraparenchymal"
 out_model =   file.path("cnn", paste0("rstudio_model_", ioutcome, ".h5"))
 if (!file.exists(out_model)) {
   train_dir = file.path("cnn", ioutcome, "train") 
