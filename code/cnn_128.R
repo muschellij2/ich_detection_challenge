@@ -11,6 +11,9 @@ outcomes = c("any", "epidural", "intraparenchymal", "intraventricular",
 train_outcomes = file.path("predictions", 
                            "training_outcomes.rds")
 train = readr::read_rds(train_outcomes)
+test_outcomes = file.path("predictions", 
+                           "test_outcomes.rds")
+test = readr::read_rds(test_outcomes)
 
 # outfile = file.path("predictions", "cnn_128_data.rds")
 # mat = readr::read_rds(outfile)
@@ -21,6 +24,7 @@ if (is.na(ifold)) {
 }
 ioutcome = outcomes[ifold]
 out_model =   file.path("cnn", paste0("rstudio_model_", ioutcome, ".h5"))
+out_history =   file.path("cnn", paste0("rstudio_history_", ioutcome, ".rds"))
 if (!file.exists(out_model)) {
   train_dir = file.path("cnn", ioutcome, "train") 
   validation_dir = file.path("cnn", ioutcome, "validation") 
@@ -57,6 +61,7 @@ if (!file.exists(out_model)) {
     batch_size = 20,
     class_mode = "binary"
   )
+
   
   
   batch <- generator_next(train_generator)
@@ -94,4 +99,24 @@ if (!file.exists(out_model)) {
   )
   
   model %>% save_model_hdf5(out_model)
+  readr::write_rds(history, out_history)
+  
+  model %>% evaluate_generator(validation_generator, steps = 50)
+  model %>% predict_generator(validation_generator, steps = 50)
+  
+  test_datagen <- image_data_generator()
+  test_dir = file.path("cnn", ioutcome, "test") 
+  test_generator <- flow_images_from_directory(
+    test_dir,
+    test_datagen,
+    color_mode = "grayscale",
+    target_size = c(128, 128),
+    batch_size = 20,
+    class_mode = "binary"
+  )
+  
+  # model %>% evaluate(x_test, y_test)
+  # model %>% predict_classes(x_test)
+  
+  
 }
