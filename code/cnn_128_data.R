@@ -12,6 +12,8 @@ outcomes = c("any", "epidural", "intraparenchymal", "intraventricular",
 
 train_outcomes = file.path("predictions", 
                            "training_outcomes.rds")
+any_train_outcomes = file.path("predictions", 
+                               "training_outcomes_any.rds")
 test_outcomes = file.path("predictions", 
                           "test_outcomes.rds")
 keep_pct = 0.8
@@ -20,39 +22,82 @@ out_dirs = file.path("cnn", outcomes)
 sapply(out_dirs, dir.create, showWarnings = FALSE)
 
 out_type = "png"
-if (!file.exists(train_outcomes)) {
-  df = readr::read_rds("wide_headers_with_folds_outcomes.rds")
-  df = df %>% 
-    mutate(image = 
-             file.path(paste0(out_type, "_128"),
-                       sub(".dcm", 
-                           paste0(".", out_type), 
-                           basename(file))))
-  
-  test = df %>% 
-    filter(group == "test") %>% 
-    arrange(scan_id, instance_number) %>% 
-    select(scan_id, image, one_of(outcomes), instance_number) %>% 
-    mutate(new_group = "test")
-  
-  train = df %>% 
-    arrange(scan_id, instance_number) %>% 
-    filter(group == "train") %>% 
-    filter(any > 0) 
-  rm(df)
-  train = train %>% 
-    select(scan_id, image, one_of(outcomes))
-  train = train %>% 
-    group_by(scan_id) %>% 
-    mutate(prob = runif(1),
-           new_group = ifelse(prob >= keep_pct, "train", "validation"),
-           new_file = file.path(new_group, basename(image)))
-  
-  readr::write_rds(train, train_outcomes)
-  readr::write_rds(test, test_outcomes)
+iscen = as.numeric(Sys.getenv("SGE_TASK_ID"))
+if (is.na(iscen)) {
+  iscen = 1
+}
+ioutcome = outcomes[iscen]
+
+if (ioutcome != "any") {
+  if (!file.exists(train_outcomes)) {
+    df = readr::read_rds("wide_headers_with_folds_outcomes.rds")
+    df = df %>% 
+      mutate(image = 
+               file.path(paste0(out_type, "_128"),
+                         sub(".dcm", 
+                             paste0(".", out_type), 
+                             basename(file))))
+    
+    test = df %>% 
+      filter(group == "test") %>% 
+      arrange(scan_id, instance_number) %>% 
+      select(scan_id, image, one_of(outcomes), instance_number) %>% 
+      mutate(new_group = "test")
+    
+    train = df %>% 
+      arrange(scan_id, instance_number) %>% 
+      filter(group == "train") %>% 
+      filter(any > 0) 
+    rm(df)
+    train = train %>% 
+      select(scan_id, image, one_of(outcomes))
+    train = train %>% 
+      group_by(scan_id) %>% 
+      mutate(prob = runif(1),
+             new_group = ifelse(prob >= keep_pct, "train", "validation"),
+             new_file = file.path(new_group, basename(image)))
+    
+    readr::write_rds(train, train_outcomes)
+    readr::write_rds(test, test_outcomes)
+  } else {
+    train = readr::read_rds(train_outcomes)
+    test = readr::read_rds(test_outcomes)
+  }
 } else {
-  train = readr::read_rds(train_outcomes)
-  test = readr::read_rds(test_outcomes)
+  if (!file.exists(any_train_outcomes)) {
+    
+    df = readr::read_rds("wide_headers_with_folds_outcomes.rds")
+    df = df %>% 
+      mutate(image = 
+               file.path(paste0(out_type, "_128"),
+                         sub(".dcm", 
+                             paste0(".", out_type), 
+                             basename(file))))
+    
+    test = df %>% 
+      filter(group == "test") %>% 
+      arrange(scan_id, instance_number) %>% 
+      select(scan_id, image, one_of(outcomes), instance_number) %>% 
+      mutate(new_group = "test")
+    
+    train = df %>% 
+      arrange(scan_id, instance_number) %>% 
+      filter(group == "train")
+    
+    rm(df)
+    train = train %>% 
+      select(scan_id, image, one_of(outcomes))
+    train = train %>% 
+      group_by(scan_id) %>% 
+      mutate(prob = runif(1),
+             new_group = ifelse(prob >= keep_pct, "train", "validation"),
+             new_file = file.path(new_group, basename(image)))  
+    readr::write_rds(train, any_train_outcomes)
+    
+  } else {
+    train = readr::read_rds(any_train_outcomes)
+    test = readr::read_rds(test_outcomes)
+  }
 }
 xlong = train %>% 
   ungroup() %>% 
@@ -81,14 +126,9 @@ tmp = sapply(udn, dir.create, recursive = TRUE, showWarnings = FALSE)
 udn = unique(dirname(test_long$new_file))
 tmp = sapply(udn, dir.create, recursive = TRUE, showWarnings = FALSE)
 
-iscen = as.numeric(Sys.getenv("SGE_TASK_ID"))
-if (is.na(iscen)) {
-  iscen = 2
-}
-ioutcome = outcomes[iscen]
 
 # for (ioutcome in outcomes) {
-if (ioutcome != "any") {
+# if (ioutcome != "any") {
   
   copy_long = function(long) {
     fe = file_exists(long$new_file)
@@ -114,7 +154,7 @@ if (ioutcome != "any") {
   long = long %>% 
     filter(outcome == ioutcome)
   copy_long(long)
-}
+# }
 # }
 
 outfile = file.path("predictions", "cnn_128_data.rds")
