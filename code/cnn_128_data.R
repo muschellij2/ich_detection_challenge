@@ -83,7 +83,7 @@ tmp = sapply(udn, dir.create, recursive = TRUE, showWarnings = FALSE)
 
 iscen = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(iscen)) {
-  iscen = 1
+  iscen = 2
 }
 ioutcome = outcomes[iscen]
 

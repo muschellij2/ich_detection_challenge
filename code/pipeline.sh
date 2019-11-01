@@ -59,7 +59,7 @@ Rnosave fit_model.R -N MODEL -t 7-12 \
 Rnosave cnn_128_data.R -N DATACNN \
     -l mem_free=80G,h_vmem=81G
         
-# qrsh-l gpu,mem_free=8G,h_vmem=9G,h_stack=128M 
+# qrsh -l gpu,mem_free=8G,h_vmem=9G,h_stack=128M 
 qsub -cwd -l gpu,mem_free=100G,h_vmem=101G,h_stack=128M \
   -N CNNMOD cnn.sh 
 # Rnosave create_heads.R -N SS2  -t 1-200 \
