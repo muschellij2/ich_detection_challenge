@@ -17,7 +17,7 @@ train = readr::read_rds(train_outcomes)
 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
-  ifold = 2
+  ifold = 3
 }
 ioutcome = outcomes[ifold]
 out_model =   file.path("cnn", paste0("rstudio_model_", ioutcome, ".h5"))
