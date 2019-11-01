@@ -107,22 +107,24 @@ for (ifold in 2:6) {
     readr::write_rds(history, out_history)
   } else {
     model = load_model_hdf5(out_model)
+    if (file_exists(out_history)) {
     history = readr::read_rds(out_history)
+    }
   }
-  model %>% evaluate_generator(validation_generator, steps = 50)
-  model %>% predict_generator(validation_generator, steps = 50)
-  
-  test_datagen <- image_data_generator()
-  test_dir = file.path("cnn", ioutcome, "test") 
-  test_generator <- flow_images_from_directory(
-    test_dir,
-    test_datagen,
-    color_mode = "grayscale",
-    target_size = c(128, 128),
-    batch_size = 20,
-    class_mode = "binary"
-  )
-  
+  # model %>% evaluate_generator(validation_generator, steps = 50)
+  # model %>% predict_generator(validation_generator, steps = 50)
+  # 
+  # test_datagen <- image_data_generator()
+  # test_dir = file.path("cnn", ioutcome, "test") 
+  # test_generator <- flow_images_from_directory(
+  #   test_dir,
+  #   test_datagen,
+  #   color_mode = "grayscale",
+  #   target_size = c(128, 128),
+  #   batch_size = 20,
+  #   class_mode = "binary"
+  # )
+  # 
   # model %>% evaluate(x_test, y_test)
   # model %>% predict_classes(x_test)
   
