@@ -23,50 +23,54 @@ if (is.na(ifold)) {
   ifold = 3
 }
 for (ifold in 2:6) {
+  print(ifold)
   ioutcome = outcomes[ifold]
+  print(ioutcome)
   out_model =   file.path("cnn", paste0("rstudio_model_", ioutcome, ".h5"))
   out_history =   file.path("cnn", paste0("rstudio_history_", ioutcome, ".rds"))
+  
+  train_dir = file.path("cnn", ioutcome, "train") 
+  validation_dir = file.path("cnn", ioutcome, "validation") 
+  # All images will be rescaled by 1/255
+  train_datagen = image_data_generator(
+    rotation_range = 40,
+    width_shift_range = 0.2,
+    height_shift_range = 0.2,
+    shear_range = 0.2,
+    zoom_range = 0.2,
+    horizontal_flip = TRUE,
+    fill_mode = "nearest"
+  )
+  
+  validation_datagen <- image_data_generator()
+  train_generator <- flow_images_from_directory(
+    # This is the target directory
+    train_dir,
+    # This is the data generator
+    train_datagen,
+    color_mode = "grayscale",
+    # All images will be resized to 150x150
+    target_size = c(128, 128),
+    batch_size = 20,
+    # Since we use binary_crossentropy loss, we need binary labels
+    class_mode = "binary"
+  )
+  
+  validation_generator <- flow_images_from_directory(
+    validation_dir,
+    validation_datagen,
+    color_mode = "grayscale",
+    target_size = c(128, 128),
+    batch_size = 20,
+    class_mode = "binary"
+  )
+  
+  
+  
+  batch <- generator_next(train_generator)
+  str(batch)
+  
   if (!file.exists(out_model)) {
-    train_dir = file.path("cnn", ioutcome, "train") 
-    validation_dir = file.path("cnn", ioutcome, "validation") 
-    # All images will be rescaled by 1/255
-    train_datagen = image_data_generator(
-      rotation_range = 40,
-      width_shift_range = 0.2,
-      height_shift_range = 0.2,
-      shear_range = 0.2,
-      zoom_range = 0.2,
-      horizontal_flip = TRUE,
-      fill_mode = "nearest"
-    )
-    
-    validation_datagen <- image_data_generator()
-    train_generator <- flow_images_from_directory(
-      # This is the target directory
-      train_dir,
-      # This is the data generator
-      train_datagen,
-      color_mode = "grayscale",
-      # All images will be resized to 150x150
-      target_size = c(128, 128),
-      batch_size = 20,
-      # Since we use binary_crossentropy loss, we need binary labels
-      class_mode = "binary"
-    )
-    
-    validation_generator <- flow_images_from_directory(
-      validation_dir,
-      validation_datagen,
-      color_mode = "grayscale",
-      target_size = c(128, 128),
-      batch_size = 20,
-      class_mode = "binary"
-    )
-    
-    
-    
-    batch <- generator_next(train_generator)
-    str(batch)
     
     
     model <- keras_model_sequential() %>% 
@@ -101,24 +105,26 @@ for (ifold in 2:6) {
     
     model %>% save_model_hdf5(out_model)
     readr::write_rds(history, out_history)
-    
-    model %>% evaluate_generator(validation_generator, steps = 50)
-    model %>% predict_generator(validation_generator, steps = 50)
-    
-    test_datagen <- image_data_generator()
-    test_dir = file.path("cnn", ioutcome, "test") 
-    test_generator <- flow_images_from_directory(
-      test_dir,
-      test_datagen,
-      color_mode = "grayscale",
-      target_size = c(128, 128),
-      batch_size = 20,
-      class_mode = "binary"
-    )
-    
-    # model %>% evaluate(x_test, y_test)
-    # model %>% predict_classes(x_test)
-    
-    
+  } else {
+    model = load_model_hdf5(out_model)
+    history = readr::read_rds(out_history)
   }
+  model %>% evaluate_generator(validation_generator, steps = 50)
+  model %>% predict_generator(validation_generator, steps = 50)
+  
+  test_datagen <- image_data_generator()
+  test_dir = file.path("cnn", ioutcome, "test") 
+  test_generator <- flow_images_from_directory(
+    test_dir,
+    test_datagen,
+    color_mode = "grayscale",
+    target_size = c(128, 128),
+    batch_size = 20,
+    class_mode = "binary"
+  )
+  
+  # model %>% evaluate(x_test, y_test)
+  # model %>% predict_classes(x_test)
+  
+  
 }
