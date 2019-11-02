@@ -56,8 +56,8 @@ Rnosave collapse_stats.R -N COLLSTATS \
 Rnosave fit_model.R -N MODEL -t 7-12 \
     -l mem_free=40G,h_vmem=41G -hold_jid COLLSTATS    
     
-Rnosave cnn_128_data.R -N DATACNN \
-    -l mem_free=80G,h_vmem=81G
+Rnosave cnn_128_data.R -N DATACNN -t 1 \
+    -l mem_free=10G,h_vmem=11G
         
 # qrsh -l gpu,mem_free=8G,h_vmem=9G,h_stack=128M 
 qsub -cwd -l gpu,mem_free=100G,h_vmem=101G,h_stack=128M \

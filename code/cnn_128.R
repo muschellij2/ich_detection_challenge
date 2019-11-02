@@ -22,7 +22,7 @@ ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
   ifold = 3
 }
-for (ifold in 2:6) {
+for (ifold in 1:6) {
   print(ifold)
   ioutcome = outcomes[ifold]
   print(ioutcome)
@@ -108,7 +108,7 @@ for (ifold in 2:6) {
   } else {
     model = load_model_hdf5(out_model)
     if (file_exists(out_history)) {
-    history = readr::read_rds(out_history)
+      history = readr::read_rds(out_history)
     }
   }
   # model %>% evaluate_generator(validation_generator, steps = 50)
