@@ -117,6 +117,7 @@ test_long = test %>%
     new_file = file.path("cnn", 
                          outcome, 
                          new_group, 
+                         "data",
                          basename(image)))  %>% 
   select(-value)
 

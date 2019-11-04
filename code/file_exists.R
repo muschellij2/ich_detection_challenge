@@ -2,6 +2,9 @@ file_exists = function(..., verbose = TRUE) {
   x = list(...)
   x = unlist(...)
   x = unname(x)
+  if (length(x) == 0) {
+    return(logical(0))
+  }
   x = tolower(x)
   df = data.frame(x = x, 
                   bn = basename(x),

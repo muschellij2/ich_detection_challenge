@@ -22,7 +22,7 @@ ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
   ifold = 3
 }
-for (ifold in 1:6) {
+for (ifold in 2:6) {
   print(ifold)
   ioutcome = outcomes[ifold]
   print(ioutcome)
@@ -114,19 +114,30 @@ for (ifold in 1:6) {
   # model %>% evaluate_generator(validation_generator, steps = 50)
   # model %>% predict_generator(validation_generator, steps = 50)
   # 
-  # test_datagen <- image_data_generator()
-  # test_dir = file.path("cnn", ioutcome, "test") 
-  # test_generator <- flow_images_from_directory(
-  #   test_dir,
-  #   test_datagen,
-  #   color_mode = "grayscale",
-  #   target_size = c(128, 128),
-  #   batch_size = 20,
-  #   class_mode = "binary"
-  # )
-  # 
-  # model %>% evaluate(x_test, y_test)
-  # model %>% predict_classes(x_test)
+  test_prediction_file = file.path("predictions", 
+                                   paste0("rstudio_model_", ioutcome, 
+                                          "_test.rds"))
+  if (!file.exists(test_prediction_file)) {
+    test_datagen <- image_data_generator()
+    test_dir = file.path("cnn", ioutcome, "test")
+    images = list.files(
+      path = file.path(test_dir, "data"),
+      pattern = "png")
+    n_images = length(images)
+    test_generator <- flow_images_from_directory(
+      directory = test_dir,
+      generator = test_datagen,
+      color_mode = "grayscale",
+      target_size = c(128, 128),
+      batch_size = ceiling(n_images/200),
+      shuffle = FALSE
+    )
+    
+    res = model %>% predict_generator(test_generator, steps = 200,
+                                      verbose = 1)
+    res = res[,1]
+    readr::write_rds(res[,1], test_prediction_file)
+  }
   
   
 }
