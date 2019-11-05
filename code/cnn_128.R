@@ -136,7 +136,7 @@ for (ifold in 2:6) {
     res = model %>% predict_generator(test_generator, steps = 200,
                                       verbose = 1)
     res = res[,1]
-    readr::write_rds(res[,1], test_prediction_file)
+    readr::write_rds(res, test_prediction_file)
   }
   
   
