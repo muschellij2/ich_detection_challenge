@@ -3,8 +3,8 @@ library(dplyr)
 library(readr)
 setwd(here::here())
 
-stage_number = 1
-app = ifelse(stage_number == 1, "", "_stage2")
+stage_number = 2
+pre = ifelse(stage_number == 1, "", "stage2_")
 # df = readr::read_rds("stage_1_train_data.rds")
 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
@@ -12,8 +12,8 @@ if (is.na(ifold)) {
   ifold = 80
 }
 
-outfile = file.path("hdr", paste0("fold_", ifold, app, ".rds"))
-wide_outfile = file.path("wide_hdr", paste0("fold_", ifold, app, ".rds"))
+outfile = file.path("hdr", paste0(pre, "fold_", ifold, ".rds"))
+wide_outfile = file.path("wide_hdr", paste0(pre, "fold_", ifold, ".rds"))
 
 if (!all(file.exists(c(outfile, wide_outfile)))) {
   df = readr::read_rds(paste0("stage_", stage_number, "_data.rds"))

@@ -1,14 +1,15 @@
 cd $structural/ich_detection_challenge/code
 
-if [[ ! -f ../stage_1_data.rds ]];
+stage_number=2
+if [[ ! -f ../stage_${stage_number}_data.rds ]];
 
-  if [[ ! -f ../stage_1_test.rds ]];
+  if [[ ! -f ../stage_${stage_number}_test.rds ]];
   then 
   	Rnosave make_test.R -N TEST ;
   fi
   
   
-  if [[ ! -f ../stage_1_train.rds ]];
+  if [[ ! -f ../stage_${stage_number}_train.rds ]];
   then 
   	Rnosave read_labels.R -N LABS ;
   fi

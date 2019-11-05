@@ -25,6 +25,13 @@ x$subarachnoid = x$subdural =  NA
 out = x %>% 
   select(-dcm)
 stopifnot(all(all_ids %in% x$ID))
+
+if (stage_number == 2) {
+  stage1 = read_rds( paste0("stage_", 1, "_test.rds"))
+  droppers = x$ID %in% stage1$ID
+  # stopifnot(all(stage1$ID %in% x$ID))
+  x = x[!droppers, ]
+}
 write_rds(out, paste0("stage_", stage_number, "_test.rds"), compress = "xz")
 
 x$nifti = path("nifti", basename(sub("[.]dcm([.]gz|)$", ".nii.gz", x$dcm)))
