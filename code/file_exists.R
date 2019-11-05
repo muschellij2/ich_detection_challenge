@@ -65,3 +65,14 @@ head_size = function(x) {
   nslices = as.numeric( hdr["dim3",])
   pdim*nslices
 }
+
+
+
+parse_number_no_na = function(x) {
+  x[ x %in% c("-", "-", "N/A")] = NA
+  na_x = is.na(x)
+  x = readr::parse_number(x, na = "")
+  bad = is.na(x) & !na_x 
+  stopifnot(!any(bad))
+  x
+}

@@ -2,6 +2,7 @@ library(readr)
 library(dplyr)
 setwd(here::here())
 
+stage_number = 1
 n_folds = 200
 df = readr::read_rds("wide_headers.rds")
 

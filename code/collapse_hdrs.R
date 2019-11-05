@@ -3,8 +3,9 @@ library(fs)
 library(readr)
 library(tidyr)
 setwd(here::here())
-
-df = readr::read_rds("stage_1_data.rds")
+source("code/file_exists.R")
+stage_number = 1
+df = readr::read_rds(paste0("stage_", stage_number, "_data.rds"))
 
 n_folds = 200
 
@@ -15,20 +16,6 @@ wide_outfiles = file.path("wide_hdr", paste0("fold_", seq(n_folds), ".rds"))
 wide_outfiles = wide_outfiles[file.exists(wide_outfiles)]
 length(wide_outfiles)
 
-sub_bracket = function(x) {
-  x = sub("^\\[", "", x)
-  x = sub("\\]$", "", x)
-  x = trimws(x)
-}
-
-parse_number_no_na = function(x) {
-  x[ x %in% c("-", "-", "N/A")] = NA
-  na_x = is.na(x)
-  x = readr::parse_number(x, na = "")
-  bad = is.na(x) & !na_x 
-  stopifnot(!any(bad))
-  x
-}
 
 wide = purrr::map_df(wide_outfiles, readr::read_rds)
 wide = wide %>% 

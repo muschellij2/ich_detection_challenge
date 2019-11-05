@@ -4,8 +4,11 @@ library(dplyr)
 library(fs)
 setwd(here::here())
 
+stage_number = 1
+
 n_folds = 200
-x = list.files(path = "stage_1_test_images", 
+
+x = list.files(path = paste0("stage_", stage_number, "_test_images"),
                pattern = ".dcm", full.names = TRUE)
 ids = sub("[.]dcm$", "", basename(x))
 x = tibble::tibble(dcm = x,
@@ -14,7 +17,7 @@ x$epidural = x$intraparenchymal = x$any = x$intraventricular = NA
 x$subarachnoid = x$subdural =  NA
 out = x %>% 
   select(-dcm)
-write_rds(out, "stage_1_test.rds", compress = "xz")
+write_rds(out, paste0("stage_", stage_number, "_test.rds"), compress = "xz")
 
 x$nifti = path("nifti", basename(sub("[.]dcm([.]gz|)$", ".nii.gz", x$dcm)))
 
@@ -27,5 +30,5 @@ x = x %>%
   mutate(fold = floor(seq(nrow(x)) / n_div) + 1)
 x$group = "test"
 
-write_rds(x, "stage_1_test_data.rds", compress = "xz")
+write_rds(x, paste0("stage_", stage_number, "_test_data.rds"), compress = "xz")
 

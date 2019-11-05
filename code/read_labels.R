@@ -4,6 +4,8 @@ library(dplyr)
 library(fs)
 setwd(here::here())
 
+stage_number = 1
+
 n_folds = 200
 on_cluster = function() {
   Sys.info()[["user"]] == "jmuschel"
@@ -11,7 +13,7 @@ on_cluster = function() {
 check_gz = !on_cluster()
 
 setwd(here::here())
-x = read_csv("stage_1_train.csv.gz")
+x = readr::read_csv(paste0("stage_", stage_number, ", _train.csv.gz"))
 x = x %>% 
   mutate(sub = sub("ID_.*_(.*)", "\\1", ID),
          ID = sub("(ID_.*)_(.*)", "\\1", ID))
@@ -38,7 +40,7 @@ rs = x %>%
 rs = rs > 0
 stopifnot(all(rs == x$any))
 
-write_rds(x, "stage_1_train.rds", compress = "xz")
+write_rds(x, paste0("stage_", stage_number, ", _train.rds"), compress = "xz")
 
 
 
@@ -48,7 +50,7 @@ if (check_gz) {
   fe = file.exists(dcm_gz)
   x$dcm[fe] = dcm_gz[fe]
 }
-x$dcm = file.path("stage_1_train_images", x$dcm)
+x$dcm = file.path(paste0("stage_", stage_number, "_train_images"), x$dcm)
 x$nifti = path("nifti", basename(sub("[.]dcm([.]gz|)$", ".nii.gz", x$dcm)))
 
 x = x %>% 
@@ -60,10 +62,12 @@ x = x %>%
   mutate(fold = floor(seq(nrow(x)) / n_div) + 1)
 x$group = "train"
 
-write_rds(x, "stage_1_train_data.rds", compress = "xz")
+write_rds(x, paste0("stage_", stage_number, "_train_data.rds"), compress = "xz")
 
-if (file.exists("stage_1_test_data.rds")) {
-  test = read_rds("stage_1_test_data.rds")
+test_data = paste0("stage_", stage_number, "_test_data.rds")
+if (file.exists(test_data)) {
+  test = read_rds(test_data)
   out = bind_rows(x, test)
-  write_rds(out, "stage_1_data.rds", compress = "xz")
+  out_file = paste0("stage_", stage_number, "_data.rds")
+  write_rds(out, out_file, compress = "xz")
 }
