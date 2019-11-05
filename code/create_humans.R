@@ -9,12 +9,16 @@ library(extrantsr)
 setwd(here::here())
 
 n_folds = 200
+
+stage_number = 2
+pre = ifelse(stage_number == 1, "", "stage2_")
+
 d3 = function(x) {
   x = fslval(x, keyword = "pixdim3", verbose = FALSE)
   as.numeric(x)
 }
 
-df = readr::read_rds("wide_headers_with_folds.rds")
+df = readr::read_rds(paste0(pre, "wide_headers_with_folds.rds"))
 all_df = df
 
 df = all_df
