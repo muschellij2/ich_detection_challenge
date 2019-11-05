@@ -309,7 +309,8 @@ for (iid in uids) {
   # }
   
   if (all(file.exists(ss_robust_file, robust_maskfile)) & 
-      !all(file.exists(reduced_file, padded_file))) {
+      !all(file.exists(reduced_file, padded_file, 
+                       reduced_rds, padded_maskfile))) {
     # val = 1024
     robust_mask = readnii(robust_maskfile)
     inds = getEmptyImageDimensions(robust_mask)
