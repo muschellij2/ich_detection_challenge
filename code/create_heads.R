@@ -356,60 +356,66 @@ for (iid in uids) {
     }, imgs, tiff_files)
   }
   
+  
   run_df = run_df %>% 
     arrange(instance_number)
-  tiff_files = file.path(paste0(out_type, "_128"),
-                         sub(".dcm", 
-                             paste0(".", out_type), 
-                             basename(run_df$file)))
-  if (!all(file.exists(tiff_files))) {
-    ss = readnii(padded_file)
-    ss = (ss - (-1024)) / (3071 - (-1024)) 
-    ss = extrantsr::resample_image(
-      ss, 
-      parameters = c(128, 128, dim(ss)[3]),
-      interpolator = "linear",
-      parameter_type = "voxels")
-    d_new = dim(ss)[1:2]
-    stopifnot(all(d_new == 128))
-    # no 255
-    imgs = apply(ss, 3, function(x) list(EBImage::as.Image(x)))
-    imgs = lapply(imgs, function(x) x[[1]])
-    mapply(function(img, file) {
-      EBImage::writeImage(
-        img, file, 
-        compression = compression)
-    }, imgs, tiff_files)
-  }
-  
-  all_run_df = all_run_df %>% 
-    mutate(tiff_file = file.path(
-      paste0(out_type, "_128"),
-      sub(".dcm",                             
-          paste0(".", out_type), 
-          basename(file)))    
-    )
-  
-  if (duplicated_data) {
-    if (!all(file.exists(all_run_df$tiff_file))) {
-      wide = all_run_df %>% 
-        filter(total_slices > 1) %>% 
-        select(tiff_file, n_index, x, y, z) %>% 
-        tidyr::spread(n_index, value = tiff_file) %>% 
-        unite(x,y,z, col = xyz) %>% 
-        rename(original = `1`)
-      wide = split(wide, wide$xyz)
-      xx  = lapply(wide, function(r) {
-        orig = r$original
-        r = r %>% 
-          select(-xyz, -original)
-        r = unlist(r)
-        orig = rep(orig, length = length(r))
-        file.copy(orig, r, overwrite = TRUE)
-      })
+  for (isize in c(128, 256)) {
+    size_dir = paste0(out_type, "_", isize)
+    if (!dir.exists(size_dir)) {
+      dir.create(size_dir)
+    }
+    tiff_files = file.path(size_dir,
+                           sub(".dcm", 
+                               paste0(".", out_type), 
+                               basename(run_df$file)))
+    if (!all(file.exists(tiff_files))) {
+      ss = readnii(padded_file)
+      ss = (ss - (-1024)) / (3071 - (-1024)) 
+      ss = extrantsr::resample_image(
+        ss, 
+        parameters = c(isize, isize, dim(ss)[3]),
+        interpolator = "linear",
+        parameter_type = "voxels")
+      d_new = dim(ss)[1:2]
+      stopifnot(all(d_new == isize))
+      # no 255
+      imgs = apply(ss, 3, function(x) list(EBImage::as.Image(x)))
+      imgs = lapply(imgs, function(x) x[[1]])
+      mapply(function(img, file) {
+        EBImage::writeImage(
+          img, file, 
+          compression = compression)
+      }, imgs, tiff_files)
+    }
+    
+    all_run_df = all_run_df %>% 
+      mutate(tiff_file = file.path(
+        size_dir,
+        sub(".dcm",                             
+            paste0(".", out_type), 
+            basename(file)))    
+      )
+    
+    if (duplicated_data) {
+      if (!all(file.exists(all_run_df$tiff_file))) {
+        wide = all_run_df %>% 
+          filter(total_slices > 1) %>% 
+          select(tiff_file, n_index, x, y, z) %>% 
+          tidyr::spread(key = n_index, value = tiff_file) %>% 
+          unite(x,y,z, col = xyz) %>% 
+          rename(original = `1`)
+        wide = split(wide, wide$xyz)
+        xx  = lapply(wide, function(r) {
+          orig = r$original
+          r = r %>% 
+            select(-xyz, -original)
+          r = unlist(r)
+          orig = rep(orig, length = length(r))
+          file.copy(orig, r, overwrite = TRUE)
+        })
+      }
     }
   }
-  
   
   if (all(file.exists(c(ss_file, maskfile, outfile)))) {
     
