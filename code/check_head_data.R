@@ -2,9 +2,11 @@ library(readr)
 library(dplyr)
 setwd(here::here())
 
-stage_number = 1
+stage_number = 2
+pre = ifelse(stage_number == 1, "", "stage2_")
+
 n_folds = 200
-df = readr::read_rds("wide_headers.rds")
+df = readr::read_rds(paste0(pre, "wide_headers.rds"))
 
 # add the group
 df = df %>% 
@@ -82,11 +84,11 @@ df = df %>%
   arrange(PatientID, StudyInstanceUID, SeriesInstanceUID, x, y, z) 
 
 
-readr::write_rds(df, "wide_headers_with_folds.rds")
+readr::write_rds(df, paste0(pre, "wide_headers_with_folds.rds"))
 
-hdr = readr::read_rds("wide_headers_with_folds.rds")
+hdr = readr::read_rds(paste0(pre, "wide_headers_with_folds.rds"))
 
-outcomes = readr::read_rds("stage_1_data.rds")
+outcomes = readr::read_rds(paste0("stage_", stage_number, "_data.rds"))
 outcomes = outcomes %>%
   select(ID,
          any,
@@ -106,7 +108,8 @@ outcomes = full_join(outcomes, hdr)
 outcomes = outcomes  %>% 
   arrange(PatientID, StudyInstanceUID, SeriesInstanceUID, x, y, z) 
 
-readr::write_rds(outcomes, "wide_headers_with_folds_outcomes.rds")
+readr::write_rds(outcomes, 
+                 paste0(pre, "wide_headers_with_folds_outcomes.rds"))
 
 # dup_data =  df %>%   
 #   arrange(PatientID, StudyInstanceUID, SeriesInstanceUID, 

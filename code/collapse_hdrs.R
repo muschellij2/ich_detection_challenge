@@ -9,10 +9,13 @@ df = readr::read_rds(paste0("stage_", stage_number, "_data.rds"))
 
 n_folds = 200
 
-outfiles = file.path("hdr", paste0("fold_", seq(n_folds), ".rds"))
+stage_number = 2
+pre = ifelse(stage_number == 1, "", "stage2_")
+
+outfiles = file.path("hdr", paste0(pre, "fold_", seq(n_folds), ".rds"))
 outfiles = outfiles[file.exists(outfiles)]
 
-wide_outfiles = file.path("wide_hdr", paste0("fold_", seq(n_folds), ".rds"))
+wide_outfiles = file.path("wide_hdr", paste0(pre, "fold_", seq(n_folds), ".rds"))
 wide_outfiles = wide_outfiles[file.exists(wide_outfiles)]
 length(wide_outfiles)
 
@@ -40,12 +43,12 @@ wide = wide %>%
   tidyr::separate(ipp, into = c("x", "y", "z"), remove = FALSE, sep = ",") %>% 
   mutate_at(vars(x, y, z), parse_number_no_na)
 
-readr::write_rds(wide, path = "wide_headers.rds")
+readr::write_rds(wide, path = paste0(pre, "wide_headers.rds"))
 
 sub = wide %>% 
   select(ID, PatientID, SeriesInstanceUID,
          StudyInstanceUID, file)
-readr::write_rds(sub, path = "id_patient_map.rds")
+readr::write_rds(sub, path = paste0(pre, "id_patient_map.rds"))
 rm(wide)
 
 # sub %>% 
@@ -63,7 +66,7 @@ res = res %>%
   mutate(ID = sub("[.]dcm", "", basename(file)))
 stopifnot(all(df$ID %in% unique(res$ID)))
 
-readr::write_rds(res, path = "all_headers.rds")
+readr::write_rds(res, path = paste0(pre, "all_headers.rds"))
 
 
 

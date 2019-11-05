@@ -14,13 +14,15 @@ setwd(here::here())
 source("code/file_exists.R")
 add_instance_number = TRUE
 
+stage_number = 2
+pre = ifelse(stage_number == 1, "", "stage2_")
 
 tmp = sapply(c("ss", "mask", "nifti"), dir.create, 
              showWarnings = FALSE)
 
 n_folds = 200
 
-df = readr::read_rds("wide_headers_with_folds.rds")
+df = readr::read_rds(paste0(pre, "wide_headers_with_folds.rds"))
 all_df = df
 
 df = all_df
