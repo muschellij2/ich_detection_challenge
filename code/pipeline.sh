@@ -34,7 +34,7 @@ then
 fi
 
 Rnosave create_heads.R -N SS -t 1-200 \
-    -l mem_free=12G,h_vmem=14G
+    -l mem_free=20G,h_vmem=20G
 
 Rnosave create_humans.R -N HUMAN -t 1-200 \
     -l mem_free=8G,h_vmem=10G -hold_jid_ad SS  
@@ -46,7 +46,7 @@ Rnosave registration.R -N REG -t 1-200 \
 
 Rnosave pitch_segment.R -t 1-200 \
     -N PITCH -hold_jid_ad SS \
-    -l mem_free=20G,h_vmem=21G,h_stack=512M 
+    -l mem_free=30G,h_vmem=31G,h_stack=256M 
     
 Rnosave within_slice_stats.R -N STATS -t 1-200 \
     -l mem_free=8G,h_vmem=9G -hold_jid_ad SS 

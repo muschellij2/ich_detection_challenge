@@ -121,6 +121,7 @@ for (iid in uids) {
   if (all(file.exists(all_files))) {
     all_d = sapply(all_files, d3)
   }
+  all_files = setdiff(all_files, robust_maskfile)
   
   if (!all(file.exists(all_files))) {
     

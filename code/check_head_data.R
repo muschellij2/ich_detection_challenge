@@ -123,10 +123,10 @@ outcomes = c("any", "epidural", "intraparenchymal", "intraventricular",
 ##################################
 dup_data =  df %>%   
   group_by(SeriesInstanceUID, PatientID) %>% 
-  filter(!all(n_index == 1))
+  filter(!all(repeat_index == 1))
 
 dup_data = dup_data %>% 
-  select(ID, file, group, SeriesInstanceUID, PatientID, n_index, 
+  select(ID, file, group, SeriesInstanceUID, PatientID, repeat_index, 
          fold, x, y, z, index)
   
   
