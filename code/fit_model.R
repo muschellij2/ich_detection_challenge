@@ -4,11 +4,14 @@ library(ggplot2)
 library(tidyr)
 library(ranger)
 setwd(here::here())
-
 source("code/file_exists.R")
 
+stage_number = 2
+pre = ifelse(stage_number == 1, "", "stage2_")
+
 nthreads = 1
-full_df = readr::read_rds("wide_headers_with_folds_outcomes.rds")
+full_df = readr::read_rds(paste0(pre, 
+                                 "wide_headers_with_folds_outcomes.rds"))
 full_df = full_df %>% 
   select(scan_id, group, outfile) %>% 
   distinct()
@@ -16,14 +19,14 @@ all_scan_ids = unique(full_df$scan_id)
 full_data = split(full_df, full_df$group)
 rm(full_df)
 
-hdr = readr::read_rds("wide_headers.rds")
+hdr = readr::read_rds(paste0(pre, "wide_headers.rds"))
 cn = colnames(hdr)
 cn = setdiff(cn, c("file", "ID", "x", "y", "z"))
 rm(hdr)
 
 full_outfile = file.path(
   "stats", 
-  paste0("all_data.rds"))
+  paste0(pre, "all_data.rds"))
 results = readr::read_rds(path = full_outfile)
 stopifnot(all( all_scan_ids %in% unique(results$scan_id)))
 df = results %>% 

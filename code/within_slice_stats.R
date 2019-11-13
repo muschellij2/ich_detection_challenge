@@ -30,7 +30,7 @@ ddf = df %>%
 
 ifold = as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifold)) {
-  ifold = 114
+  ifold = 1
 }
 
 df = df %>%
@@ -41,7 +41,7 @@ iid = 16
 results = vector(mode = "list", length = length(uids))
 fold_outfile = file.path(
   "stats", 
-  paste0("fold_", ifold, ".rds"))
+  paste0(pre, "fold_", ifold, ".rds"))
 i = 1
 
 for (i in seq_along(uids)) {

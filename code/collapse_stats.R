@@ -7,7 +7,8 @@ setwd(here::here())
 source("code/file_exists.R")
 
 n_folds = 200
-
+stage_number = 2
+pre = ifelse(stage_number == 1, "", "stage2_")
 
 results = vector(mode = "list", length = n_folds)
 
