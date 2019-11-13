@@ -14,15 +14,15 @@ results = vector(mode = "list", length = n_folds)
 
 outfile = file.path(
   "stats", 
-  paste0("all_folds.rds"))
+  paste0(pre, "all_folds.rds"))
 full_outfile = file.path(
   "stats", 
-  paste0("all_data.rds"))
+  paste0(pre, "all_data.rds"))
 for (ifold in seq(n_folds)) {
   print(ifold)
   fold_outfile = file.path(
     "stats", 
-    paste0("fold_", ifold, ".rds"))
+    paste0(pre, "fold_", ifold, ".rds"))
   res = readr::read_rds(fold_outfile)
   results[[ifold]] = res
 }
@@ -32,7 +32,7 @@ results = results %>%
   mutate_at(vars(instance_number), as.numeric)
 readr::write_rds(results, path = outfile)
 
-df = readr::read_rds("wide_headers_with_folds_outcomes.rds")
+df = readr::read_rds(paste0(pre, "wide_headers_with_folds_outcomes.rds"))
 
 results$have_results = TRUE
 results = results %>% 
