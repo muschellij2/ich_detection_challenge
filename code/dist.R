@@ -10,7 +10,7 @@ library(extrantsr)
 setwd(here::here())
 # Rcpp::sourceCpp("code/dist_min.cpp")
 
-hausdorffDistance <- function( binarySeg1, binarySeg2 ) {
+hausdorffDistance <- function(binarySeg1, binarySeg2 ) {
   binarySeg1 = check_ants(binarySeg1)
   binarySeg2 = check_ants(binarySeg2)
   d1 = iMath( binarySeg1, "MaurerDistance" ) * binarySeg2
@@ -18,7 +18,7 @@ hausdorffDistance <- function( binarySeg1, binarySeg2 ) {
   return( max( c( max( abs( d1 ) ), max( abs( d2 ) ) ) ) )
 }
 
-stage_number = 2
+stage_number = 1
 pre = ifelse(stage_number == 1, "", "stage2_")
 
 n_folds = 200

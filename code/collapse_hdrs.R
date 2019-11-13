@@ -66,7 +66,7 @@ res = res %>%
   mutate(ID = sub("[.]dcm", "", basename(file)))
 stopifnot(all(df$ID %in% unique(res$ID)))
 
-readr::write_rds(res, path = paste0(pre, "all_headers.rds"))
+readr::write_rds(res, path = paste0(pre, "all_headers.rds"), compress = "xz")
 
 
 
