@@ -153,7 +153,7 @@ stopifnot(all( full_data$test$scan_id %in% unique(testing$scan_id)))
 
 test_outfile = file.path(
   "predictions",
-  paste0("rf_test_", ioutcome, "_", 
+  paste0(pre, "rf_test_", ioutcome, "_", 
          num.trees,
          ".rds"))
 if (!file.exists(test_outfile)) {
@@ -176,7 +176,7 @@ if (!file.exists(test_outfile)) {
 
 train_outfile = file.path(
   "predictions",
-  paste0("rf_train_", ioutcome, "_", 
+  paste0(pre, "rf_train_", ioutcome, "_", 
          num.trees,
          ".rds"))
 training = xtraining
