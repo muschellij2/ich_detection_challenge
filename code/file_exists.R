@@ -76,3 +76,19 @@ parse_number_no_na = function(x) {
   stopifnot(!any(bad))
   x
 }
+
+BinToDec <- function(x, n_slots = 6) {
+  if (!is.character(x)) {
+    stopifnot(length(x) == n_slots)
+    stopifnot(all(x %in% c(0, 1)))
+    x = paste(x, collapse = "")
+  }
+  nc = nchar(x)
+  stopifnot(all(na.omit(nc) == n_slots))
+  strtoi(x, base = 2)
+}
+
+DecToBin <- function(x, n_slots = 6) {
+  x = as.integer(intToBits(x))[1:n_slots]
+  paste(rev(x), collapse = "")
+}

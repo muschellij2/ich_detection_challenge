@@ -17,7 +17,7 @@ loss = function(label, prediction, tol = 1e-15) {
 }
 
 check = FALSE
-group = "train"
+group = "test"
 outcomes = c("any", "epidural", "intraparenchymal", "intraventricular", 
              "subarachnoid", "subdural")
 num_trees = 2000
@@ -73,17 +73,23 @@ loss_value = sapply(cp$data, function(x) {
 })
 
 threshes = seq(0, 1, by = 0.005)
-losses = sapply(cp$data, function(x) {
+losses = pbapply::pbsapply(cp$data, function(x) {
   sapply(threshes, function(r) {
     loss(x$y, x$Label >= r)
   })
 })
+colnames(losses) = cp$outcome
 
 cp$data = NULL
+cutoffs = threshes[apply(losses, 2, which.min)]
+names(cutoffs) = colnames(losses)
+
+cp$cutoff = cutoffs
 results = list(cutpoints = cp,
                thresholds = threshes,
                losses = loss, 
-               loss_value = loss_value)
+               loss_value = loss_value,
+               cutoffs = cutoffs)
 readr::write_rds(cp, paste0("results/cutpoints_", group, ".rds"))
 
 

@@ -22,8 +22,22 @@ tmp = sapply(c("ss", "mask", "nifti"), dir.create,
 
 n_folds = 200
 
-df = readr::read_rds(paste0(pre, "wide_headers_with_folds.rds"))
+df = readr::read_rds("wide_headers_with_folds_outcomes.rds")
 all_df = df
+
+df = df %>%
+  unite(col = label, sep = "",          
+        any,
+        epidural,
+        intraparenchymal,
+        intraventricular,
+        subarachnoid,
+        subdural, na.rm = TRUE) 
+df = df %>% 
+  mutate(label = ifelse(label == "NANANANANANA", NA_character_, label))
+# use integer, then get to get back sprintf("%06.0f", 0)
+df = df %>% 
+  mutate(label = as.integer(label))
 
 df = all_df
 # 7646
