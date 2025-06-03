@@ -33,9 +33,10 @@ stopifnot(anyDuplicated(df$id) == 0)
 
 df = df %>% 
   mutate(
-    hdr = here::here("hdr", paste0(id, ".rds"))
+    hdr = here::here("header", paste0(id, ".rds"))
   )
 
+fs::dir_create(here::here("data", "header"))
 outfile = here::here("data", "dicom_filenames.rds")
 readr::write_rds(df, outfile)
 
