@@ -14,7 +14,7 @@ predictions/
 data
 original_data
 *.dcm
-HEADER.*.out
+HEADER*.out
 HEADER*.err
 FILES*.out
 FILES*.err
