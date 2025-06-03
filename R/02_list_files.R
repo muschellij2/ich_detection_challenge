@@ -31,9 +31,11 @@ df = df %>%
   mutate(id = sub("\\.dcm$", "", fname)) 
 stopifnot(anyDuplicated(df$id) == 0)
 
+n_folds = 200
 df = df %>% 
   mutate(
-    hdr = here::here("header", paste0(id, ".rds"))
+    hdr = here::here("data", "header", paste0(id, ".rds")),
+    fold = (0:(nrow(df)-1)) %% n_folds + 1
   )
 
 fs::dir_create(here::here("data", "header"))
