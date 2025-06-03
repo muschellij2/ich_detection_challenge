@@ -11,3 +11,6 @@ stage_1_train_images/
 send_to_cluster.sh
 *.rds
 predictions/
+data
+original_data
+*.dcm
