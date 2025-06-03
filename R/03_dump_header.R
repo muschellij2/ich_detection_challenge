@@ -1,11 +1,19 @@
 library(dcmtk)
 library(dplyr)
 library(readr)
+source(here::here("R/utils.R"))
 
 filename = here::here("data", "dicom_filenames.rds")
 df = readr::read_rds(filename)
 
 iid = 1
+
+ifold = get_fold(default = NA_real_)
+if (all(is.na(ifold))) {
+  ifold = sort(unique(df$fold))
+}
+df = df %>%
+  filter(fold %in% ifold)
 
 print(nrow(df))
 
