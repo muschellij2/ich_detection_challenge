@@ -14,3 +14,7 @@ predictions/
 data
 original_data
 *.dcm
+FILES_.*.out
+FILES_.*.err
+HEADER_.*.err
+HEADER_.*.out
