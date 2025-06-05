@@ -5,3 +5,5 @@ Rnosave R/03_dump_header.R -J HEADER --array=1-200 --mem=8G -o eofiles/%x_%A_%a.
 
 
 # Rnosave R/03_dump_header.R -J HEADER --array=1-5109 --mem=8G -o %x_%A_%a.out -e %x_%A_%a.err
+
+sbatch --time=4-00:00:00  -J UNZIP  -o eofiles/%x_%A.out -e eofiles/%x_%A.err R/unzip_data.sh
