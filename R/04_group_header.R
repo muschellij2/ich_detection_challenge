@@ -87,7 +87,7 @@ stopifnot(anyDuplicated(check$file_nifti) == 0)
   
 
 series = df %>% 
-  nest(data = everything(), .by = c(id_patient, id_series, file_nifti, group))
+  nest(data = everything(), .by = c(id_patient, id_series, file_nifti, group, fold))
 readr::write_rds(series, outfile, compress = "xz")
 
 
