@@ -11,12 +11,17 @@ library(purrr)
 source(here::here("R/utils.R"))
 outfile = here::here("data", "dicom_headers.rds")
 df = readr::read_rds(outfile)
+if (!file.exists(outfile)) {
+  stop("Please run 04_group_header.R first")
+}
 
 n_ids = df %>% 
   group_by(StudyInstanceUID) %>% 
-  summarise(n = n_distinct(PatientID))
+  summarise(n = n_distinct(PatientID),
+            n_stage = n_distinct(stage_number))
 
 stopifnot(all(n_ids$n == 1))
+stopifnot(all(n_ids$n_stage == 1))
 
 n_study = df %>% 
   group_by(PatientID) %>% 
