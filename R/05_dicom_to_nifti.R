@@ -16,7 +16,7 @@ ifold = get_fold(default = unique(series$fold))
 print(head(ifold))
 series = series %>%
   filter(fold %in% ifold)
-
+print(nrow(seres))
 iid = 1
 for (iid in seq(nrow(series))) {
   print(iid)
