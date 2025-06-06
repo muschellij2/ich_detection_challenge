@@ -14,8 +14,10 @@ if (!file.exists(outfile)) {
   wide = purrr::map_df(headers, readr::read_rds, .progress = TRUE)
   wide$file = sub("/legacy/dexter/disk2/smart/stroke_ct/ident",
                   "/dcs05/ciprian/smart", wide$file)
+  wide$file = sub("stage_1",
+                  "stage_2", wide$file)
   sub_df = df %>% 
-    select(file, stage_number, group, id, fold)
+    select(file, group, id, fold)
   wide = wide %>% left_join(sub_df)
   readr::write_rds(wide, outfile)
 } else {
