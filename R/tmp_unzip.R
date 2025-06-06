@@ -13,14 +13,18 @@ df = df %>%
 print(nrow(df))
 
 
-for (iid in seq(nrow(df))) {
-  print(iid)
-  idf = df[iid, ]
-  if (!file.exists(idf$Name)) {
-    unzip("rsna-intracranial-hemorrhage-detection-stage-2.zip", files = idf$Name)
-  } 
+# for (iid in seq(nrow(df))) {
+  # print(iid)
+  # idf = df[iid, ]
+  df = df %>% 
+    filter(!file.exists(Name))
+  if (nrow(df) > 0) {
+  # if (!file.exists(idf$Name)) {
+    unzip("rsna-intracranial-hemorrhage-detection-stage-2.zip", files = df$Name)
+  # } 
+  }
   # else {
   #   res = readr::read_rds(idf$hdr)
   # }
-}
+# }
 
