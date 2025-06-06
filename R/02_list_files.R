@@ -6,7 +6,8 @@ library(purrr)
 library(tidyr)
 
 df_dir = expand_grid(
-  stage_number = 1:2,
+  # stage_number = 1:2,
+  stage_number = 2,
   group = c("train", "test")
 ) %>% 
   mutate(
