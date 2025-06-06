@@ -11,14 +11,14 @@ headers = df$hdr
 
 outfile = here::here("data", "dicom_headers.rds")
 if (!file.exists(outfile)) {
+  print(length(headers))
   wide = purrr::map_df(headers, readr::read_rds, .progress = TRUE)
-  wide$file = sub("/legacy/dexter/disk2/smart/stroke_ct/ident",
-                  "/dcs05/ciprian/smart", wide$file)
-  wide$file = sub("stage_1",
-                  "stage_2", wide$file)
+  wide$id = nii.stub(wide$file, bn = TRUE)
+  wide$file = NULL
   sub_df = df %>% 
     select(file, group, id, fold)
-  wide = wide %>% left_join(sub_df)
+  wide = wide %>% left_join(sub_df) %>% 
+    select(file, id, group, everything())
   readr::write_rds(wide, outfile)
 } else {
   wide = readr::read_rds(outfile)
