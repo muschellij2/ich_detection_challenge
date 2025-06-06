@@ -13,6 +13,7 @@ outfile = here::here("data", "series_data.rds")
 series = readr::read_rds(outfile)
 
 ifold = get_fold(default = unique(series$fold))
+print(head(fold))
 series = series %>%
   filter(fold %in% ifold)
 
