@@ -3,6 +3,7 @@ library(fs)
 library(readr)
 library(tidyr)
 library(neurobase)
+library(tidyr)
 source(here::here("R/utils.R"))
 
 filename = here::here("data", "dicom_filenames.rds")
@@ -14,7 +15,7 @@ outfile = here::here("data", "dicom_headers.rds")
 if (!file.exists(outfile)) {
   print(length(headers))
   wide = purrr::map_df(headers, readr::read_rds, .progress = TRUE)
-  wide$id = nii.stub(wide$file, bn = TRUE)
+  wide$id = sub("[.]dcm", "", basename(wide$file))
   wide$file = NULL
   sub_df = df %>% 
     select(file, group, id, fold)
@@ -38,8 +39,6 @@ n_ids = df %>%
   summarise(n = n_distinct(PatientID))
 
 stopifnot(all(n_ids$n == 1))
-
-stopifnot(all(n_ids$n_stage == 1))
 
 n_study = df %>% 
   group_by(PatientID) %>% 
@@ -77,11 +76,18 @@ id_df = df %>%
     fold = floor(fold / ceiling(dplyr::n()/n_folds) + 1)
   ) 
 df = df %>% 
+  # fold is now by image, not by file
+  select(-fold) %>% 
   left_join(id_df, by = "id_patient") 
 
 outfile = here::here("data", "series_data.rds")
+check = df %>% 
+  distinct(id_patient, id_series, file_nifti, group) 
+stopifnot(anyDuplicated(check$file_nifti) == 0)
+  
+
 series = df %>% 
-  nest(data = -fold, .by = file_nifti)
+  nest(data = everything(), .by = c(id_patient, id_series, file_nifti, group))
 readr::write_rds(series, outfile, compress = "xz")
 
 
