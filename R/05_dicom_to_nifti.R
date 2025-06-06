@@ -56,6 +56,9 @@ id_df = df %>%
 df = df %>% 
   left_join(id_df, by = "id_patient") 
 
+xdf = df
+
+df = xdf
 ifold = get_fold(default = unique(df$fold))
 df = df %>%
   filter(fold %in% ifold)
