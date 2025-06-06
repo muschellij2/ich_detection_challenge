@@ -2,6 +2,7 @@ library(dplyr)
 library(fs)
 library(readr)
 library(tidyr)
+library(neurobase)
 source(here::here("R/utils.R"))
 
 filename = here::here("data", "dicom_filenames.rds")
@@ -28,6 +29,60 @@ study = wide %>%
 
 series = wide %>% 
   nest(data = everything(), .by = SeriesInstanceUID)
+
+
+df = wide
+
+n_ids = df %>% 
+  group_by(StudyInstanceUID) %>% 
+  summarise(n = n_distinct(PatientID))
+
+stopifnot(all(n_ids$n == 1))
+
+stopifnot(all(n_ids$n_stage == 1))
+
+n_study = df %>% 
+  group_by(PatientID) %>% 
+  summarise(n = n_distinct(StudyInstanceUID))
+
+n_study_per_series = df %>% 
+  group_by(SeriesInstanceUID) %>% 
+  summarise(n = n_distinct(StudyInstanceUID))
+
+stopifnot(all(n_study_per_series$n == 1))
+
+
+df = df %>% 
+  mutate(
+    id_patient = remove_brackets(PatientID),
+    id_patient = gsub_under(id_patient),
+    id_series = remove_brackets(SeriesInstanceUID),
+    id_series = gsub_under(id_series),
+    
+    file_nifti = file.path(
+      here::here("data", "nifti"),
+      paste0(
+        id_patient, "_",
+        id_series, 
+        ".nii.gz"
+      )
+    )
+  )
+
+n_folds = 200
+id_df = df %>% 
+  distinct(id_patient) %>% 
+  mutate(
+    fold = seq(dplyr::n()),
+    fold = floor(fold / ceiling(dplyr::n()/n_folds) + 1)
+  ) 
+df = df %>% 
+  left_join(id_df, by = "id_patient") 
+
+outfile = here::here("data", "series_data.rds")
+series = df %>% 
+  nest(data = -fold, .by = file_nifti)
+readr::write_rds(series, outfile, compress = "xz")
 
 
 # 
