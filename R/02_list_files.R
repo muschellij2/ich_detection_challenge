@@ -13,6 +13,7 @@ df_dir = expand_grid(
     dir = here::here("data", paste0("stage_", stage_number, "_", group, "_images"))
   ) %>% 
   filter(dir.exists(dir))
+print(df_dir)
 
 paths = df_dir$dir
 df = map_df(paths, function(path) {
