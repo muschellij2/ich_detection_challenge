@@ -17,31 +17,36 @@ print(head(ifold))
 series = series %>%
   filter(fold %in% ifold)
 print(nrow(series))
+
 iid = 1
 for (iid in seq(nrow(series))) {
-  print(iid)
+  # print(iid)
   file_nifti = series$file_nifti[[iid]]
   idf = series$data[[iid]]
+  
   if (!file.exists(file_nifti)) {
-    out = try({copy_dcm_files(idf)})
-    if (inherits(out, "try-error")) {
-      next
+    res = create_nifti(idf)
+    if (is.null(res)) {
+      print(iid)
+      print(file_nifti)
+      idf = idf %>% 
+        arrange(file) %>% 
+        group_by(
+          ImageOrientationPatient, 
+          ImagePositionPatient,
+          SeriesInstanceUID
+        ) %>% 
+        summarise(
+          file = file[1],
+          .groups = "drop"
+        ) 
+      res = create_nifti(idf)
     }
-    tdir = out$outdir
-    file_df = out$file_df
-    res = try({
-      ct_dcm2nii(tdir,
-                 verbose = FALSE,
-                 dcm2niicmd = "dcm2niix_feb2024",
-                 ignore_roi_if_multiple = TRUE,
-                 fail_on_error = TRUE)
-    })
-    unlink(tdir, recursive = TRUE)
-    if (length(dim(res)) != 3 || inherits(res, "try-error")) {
-      next
+    if (!is.null(res)) {
+      writenii(res, file_nifti)
     }
-    writenii(res, file_nifti)
   }
 }
+
 
 
