@@ -25,6 +25,7 @@ for (iid in seq(nrow(series))) {
   idf = series$data[[iid]]
   
   if (!file.exists(file_nifti)) {
+    idf = idf %>% filter(id != "ID_6431af929")
     res = create_nifti(idf)
     if (is.null(res)) {
       print(iid)
