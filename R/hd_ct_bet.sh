@@ -9,8 +9,9 @@
 #SBATCH --error=BET_%A.err
 
 source ~/.bash_profile
-cd $mistie_3
-files=`ls data/nifti/*.nii.gz`
+cd $detect
+ # [1] "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "a" "b" "c" "d" "e" "f"
+files=`ls data/nifti/ID-0*.nii.gz data/nifti/ID-1*.nii.gz data/nifti/ID-2*.nii.gz`
 outdir="data/brain_extracted_hdctbet"
 mkdir -p ${outdir}
 
