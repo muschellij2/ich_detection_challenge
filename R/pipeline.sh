@@ -17,4 +17,4 @@ Rnosave R/05_dicom_to_nifti.R -J NIFTI --array=1-200 --mem=8G -o eofiles/%x_%A_%
 Rnosave R/tmp_unzip.R -J UNZ --array=1-2 --mem=4G -o eofiles/%x_%A_%a.out -e eofiles/%x_%A_%a.err
 
 
-Rnosave R/06_skull_strip.R -J SS --array=4-200 --mem=20G -o eofiles/%x_%A_%a.out -e eofiles/%x_%A_%a.err
+Rnosave R/06_skull_strip.R -J SS --array=34 --mem=20G -o eofiles/%x_%A_%a.out -e eofiles/%x_%A_%a.err
