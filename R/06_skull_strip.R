@@ -10,51 +10,59 @@ library(here)
 library(lubridate)
 library(purrr)
 source(here::here("R/utils.R"))
-outfile = here::here("data", "series_data.rds")
-df = readr::read_rds(outfile)
+rerun = FALSE
 
-endings = c("", "_synth", "_original", "_ctbet", "_hdctbet")
-all_dirs = lapply(endings, function(ending) {
-  list(
-    dir_ss = here::here("data", paste0("brain_extracted", ending)),
-    dir_mask = here::here("data", paste0("brain_mask", ending)),
-    dir_image = here::here("results", paste0("image_ss", ending))
-  )
-})
-names(all_dirs) = c("v2", "synth", "original", "ctbet", "hdctbet")
-
-
-fs::dir_create(unlist(all_dirs))
-
-
-df = df %>%
-  mutate(
-    stub = basename(file_nifti),
-    file_ss = here::here(all_dirs$v2$dir_ss, stub),
-    file_mask = here::here(all_dirs$v2$dir_mask, stub),
-    file_image_ss = here::here(all_dirs$v2$dir_image, paste0(nii.stub(stub), ".png")),
-    
-    file_ss_original = here::here(all_dirs$original$dir_ss, stub),
-    file_mask_original = here::here(all_dirs$original$dir_mask, stub),
-    file_image_ss_original = here::here(all_dirs$original$dir_image, paste0(nii.stub(stub), ".png")),
-    
-    file_ss_hdctbet = here::here(all_dirs$hdctbet$dir_ss, stub),
-    file_mask_hdctbet = here::here(all_dirs$hdctbet$dir_mask, stub),
-    file_image_ss_hdctbet = here::here(all_dirs$hdctbet$dir_image, paste0(nii.stub(stub), ".png")),
-    
-    file_ss_ctbet = here::here(all_dirs$ctbet$dir_ss, stub),
-    file_mask_ctbet = here::here(all_dirs$ctbet$dir_mask, stub),
-    file_image_ss_ctbet = here::here(all_dirs$ctbet$dir_image, paste0(nii.stub(stub), ".png")),
-    
-    
-    file_ss_synth = here::here(all_dirs$synth$dir_ss, stub),
-    file_mask_synth = here::here(all_dirs$synth$dir_mask, stub),
-    file_image_ss_synth = here::here(all_dirs$synth$dir_image, paste0(nii.stub(stub), ".png"))
-    
-  ) %>%
-  select(-stub)
-readr::write_rds(df, here::here("series_filesnames.rds"))
-
+file_with_ss = here::here("data", "series_filesnames.rds")
+if (!file.exists(file_with_ss) || rerun) {
+  here::here("series_filesnames.rds")
+  
+  outfile = here::here("data", "series_data.rds")
+  df = readr::read_rds(outfile)
+  
+  endings = c("", "_synth", "_original", "_ctbet", "_hdctbet")
+  all_dirs = lapply(endings, function(ending) {
+    list(
+      dir_ss = here::here("data", paste0("brain_extracted", ending)),
+      dir_mask = here::here("data", paste0("brain_mask", ending)),
+      dir_image = here::here("results", paste0("image_ss", ending))
+    )
+  })
+  names(all_dirs) = c("v2", "synth", "original", "ctbet", "hdctbet")
+  
+  
+  fs::dir_create(unlist(all_dirs))
+  
+  
+  df = df %>%
+    mutate(
+      stub = basename(file_nifti),
+      file_ss = here::here(all_dirs$v2$dir_ss, stub),
+      file_mask = here::here(all_dirs$v2$dir_mask, stub),
+      file_image_ss = here::here(all_dirs$v2$dir_image, paste0(nii.stub(stub), ".png")),
+      
+      file_ss_original = here::here(all_dirs$original$dir_ss, stub),
+      file_mask_original = here::here(all_dirs$original$dir_mask, stub),
+      file_image_ss_original = here::here(all_dirs$original$dir_image, paste0(nii.stub(stub), ".png")),
+      
+      file_ss_hdctbet = here::here(all_dirs$hdctbet$dir_ss, stub),
+      file_mask_hdctbet = here::here(all_dirs$hdctbet$dir_mask, stub),
+      file_image_ss_hdctbet = here::here(all_dirs$hdctbet$dir_image, paste0(nii.stub(stub), ".png")),
+      
+      file_ss_ctbet = here::here(all_dirs$ctbet$dir_ss, stub),
+      file_mask_ctbet = here::here(all_dirs$ctbet$dir_mask, stub),
+      file_image_ss_ctbet = here::here(all_dirs$ctbet$dir_image, paste0(nii.stub(stub), ".png")),
+      
+      
+      file_ss_synth = here::here(all_dirs$synth$dir_ss, stub),
+      file_mask_synth = here::here(all_dirs$synth$dir_mask, stub),
+      file_image_ss_synth = here::here(all_dirs$synth$dir_image, paste0(nii.stub(stub), ".png"))
+      
+    ) %>%
+    select(-stub)
+  readr::write_rds(df, file_with_ss)
+} else {
+  df = readRDS(file_with_ss)
+}
 
 ifold = get_fold(default = unique(df$fold))
 print(head(ifold))
@@ -86,49 +94,55 @@ for (iid in seq(nrow(df))) {
       system.file("scct_unsmooth_SS_0.01_Mask.nii.gz",
                   package = "ichseg")
     
-    ss = CT_Skull_Strip_robust(
-      img = file_nifti,
-      retimg = FALSE,
-      keepmask = TRUE,
-      template.file = ss.template.file,
-      template.mask = ss.template.mask,
-      # remover = "double_remove_neck",
-      outfile = file_ss,
-      maskfile = file_mask)
+    try({
+      ss = CT_Skull_Strip_robust(
+        img = file_nifti,
+        retimg = FALSE,
+        keepmask = TRUE,
+        template.file = ss.template.file,
+        template.mask = ss.template.mask,
+        # remover = "double_remove_neck",
+        outfile = file_ss,
+        maskfile = file_mask)
+    })
   }
   
   if (!all(file.exists(c(file_ss_original, file_mask_original)))) {
     
-    # original
-    ss = CT_Skull_Strip(
-      img = file_nifti,
-      retimg = FALSE,
-      keepmask = TRUE,
-      # remover = "double_remove_neck",
-      outfile = file_ss_original,
-      maskfile = file_mask_original)
+    try({
+      # original
+      ss = CT_Skull_Strip(
+        img = file_nifti,
+        retimg = FALSE,
+        keepmask = TRUE,
+        # remover = "double_remove_neck",
+        outfile = file_ss_original,
+        maskfile = file_mask_original)
+    })
   }
   
   
   if (!all(file.exists(c(file_ss_synth, file_mask_synth)))) {
-    
-    res = freesurfer::mri_synthstrip(
-      file = file_nifti,
-      retimg = FALSE,
-      outfile = file_ss_synth,
-      maskfile = file_mask_synth
-    )
-    if (res > 0 && !file.exists(file_ss_synth)) {
-      tfile = tempfile(fileext = ".nii.gz")
-      file.copy(file_nifti, tfile)
-      img_run = fslr::fslorient(tfile, opts = "-copyqform2sform")
+    try({
       res = freesurfer::mri_synthstrip(
-        file = img_run,
+        file = file_nifti,
         retimg = FALSE,
         outfile = file_ss_synth,
         maskfile = file_mask_synth
       )
-    }
+      if (res > 0 && !file.exists(file_ss_synth)) {
+        tfile = tempfile(fileext = ".nii.gz")
+        file.copy(file_nifti, tfile)
+        img_run = fslr::fslorient(tfile, opts = "-copyqform2sform")
+        res = freesurfer::mri_synthstrip(
+          file = img_run,
+          retimg = FALSE,
+          outfile = file_ss_synth,
+          maskfile = file_mask_synth
+        )
+      }
+    })
   }
   
 }
+
