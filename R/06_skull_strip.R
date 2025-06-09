@@ -11,16 +11,7 @@ library(lubridate)
 library(purrr)
 source(here::here("R/utils.R"))
 outfile = here::here("data", "series_data.rds")
-series = readr::read_rds(outfile)
-
-ifold = get_fold(default = unique(series$fold))
-print(head(ifold))
-df = series %>%
-  filter(fold %in% ifold)
-print(nrow(series))
-
-iid = 1
-
+df = readr::read_rds(outfile)
 
 endings = c("", "_synth", "_original", "_ctbet", "_hdctbet")
 all_dirs = lapply(endings, function(ending) {
@@ -66,9 +57,11 @@ readr::write_rds(df, here::here("series_filesnames.rds"))
 
 
 ifold = get_fold(default = unique(df$fold))
-df = df %>% 
+print(head(ifold))
+df = df %>%
   filter(fold %in% ifold)
 print(nrow(df))
+
 iid = 1
 
 for (iid in seq(nrow(df))) {
