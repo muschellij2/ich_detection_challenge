@@ -11,7 +11,7 @@
 source ~/.bash_profile
 cd $detect
  # [1] "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "a" "b" "c" "d" "e" "f"
-files=`ls data/nifti/ID-3*.nii.gz data/nifti/ID-4*.nii.gz data/nifti/ID-5*.nii.gz`
+files=`ls data/nifti/ID-6*.nii.gz data/nifti/ID-7*.nii.gz data/nifti/ID-8*.nii.gz`
 outdir="data/brain_extracted_hdctbet"
 mkdir -p ${outdir}
 
