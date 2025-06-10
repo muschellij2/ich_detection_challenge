@@ -14,8 +14,6 @@ rerun = FALSE
 
 file_with_ss = here::here("data", "series_filesnames.rds")
 if (!file.exists(file_with_ss) || rerun) {
-  here::here("series_filesnames.rds")
-  
   outfile = here::here("data", "series_data.rds")
   df = readr::read_rds(outfile)
   
@@ -63,6 +61,15 @@ if (!file.exists(file_with_ss) || rerun) {
 } else {
   df = readRDS(file_with_ss)
 }
+
+long = df %>% 
+  mutate(id = nii.stub(file_nifti, bn = TRUE)) %>% 
+  select(id, fold, starts_with("file_mask"), starts_with("file_ss")) %>% 
+  tidyr::pivot_longer(
+    cols = c(starts_with("file_mask"), starts_with("file_ss")),
+    names_to = "type",
+    values_to = "file"
+  )
 
 ifold = get_fold(default = unique(df$fold))
 print(head(ifold))
