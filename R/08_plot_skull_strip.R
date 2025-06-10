@@ -46,7 +46,13 @@ plot_seg = function(
   
 }
 
-iid = get_fold()
+ifold = get_fold(default = unique(df$fold))
+print(head(ifold))
+df = df %>%
+  filter(fold %in% ifold)
+print(nrow(df))
+
+iid = 1
 
 for (iid in seq(nrow(df))) {
   print(iid)
