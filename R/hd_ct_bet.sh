@@ -14,8 +14,8 @@ cd $detect
 # files=`ls data/nifti/ID-0*.nii.gz data/nifti/ID-1*.nii.gz data/nifti/ID-2*.nii.gz`
 # files=`ls data/nifti/ID-3*.nii.gz data/nifti/ID-4*.nii.gz data/nifti/ID-5*.nii.gz`
 # files=`ls data/nifti/ID-6*.nii.gz data/nifti/ID-7*.nii.gz data/nifti/ID-8*.nii.gz`
-files=`ls data/nifti/ID-9*.nii.gz data/nifti/ID-a*.nii.gz data/nifti/ID-b*.nii.gz`
-# files=`ls data/nifti/ID-c*.nii.gz data/nifti/ID-d*.nii.gz data/nifti/ID-e*.nii.gz`
+# files=`ls data/nifti/ID-9*.nii.gz data/nifti/ID-a*.nii.gz data/nifti/ID-b*.nii.gz`
+files=`ls data/nifti/ID-c*.nii.gz data/nifti/ID-d*.nii.gz data/nifti/ID-e*.nii.gz`
 # files=`ls data/nifti/ID-f*.nii.gz`
 outdir="data/brain_extracted_hdctbet"
 mkdir -p ${outdir}
