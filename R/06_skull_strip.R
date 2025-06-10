@@ -113,9 +113,11 @@ for (iid in seq(nrow(df))) {
         maskfile = file_mask)
     })
     if (inherits(ss, "try-error")) {
+      # if it fails, try again with a copy of the qform
+      img_run = copy_qform(file_nifti)
       ss = try({
         CT_Skull_Strip_robust(
-          img = file_nifti,
+          img = img_run,
           retimg = FALSE,
           keepmask = TRUE,
           template.file = ss.template.file,
@@ -129,9 +131,9 @@ for (iid in seq(nrow(df))) {
   
   if (!all(file.exists(c(file_ss_original, file_mask_original)))) {
     
-    try({
+    ss = try({
       # original
-      ss = CT_Skull_Strip(
+      CT_Skull_Strip(
         img = file_nifti,
         retimg = FALSE,
         keepmask = TRUE,
@@ -139,6 +141,19 @@ for (iid in seq(nrow(df))) {
         outfile = file_ss_original,
         maskfile = file_mask_original)
     })
+    if (inherits(ss, "try-error")) {
+      # if it fails, try again with a copy of the qform
+      img_run = copy_qform(file_nifti)
+      ss = try({
+        CT_Skull_Strip(
+          img = img_run,
+          retimg = FALSE,
+          keepmask = TRUE,
+          # remover = "double_remove_neck",
+          outfile = file_ss_original,
+          maskfile = file_mask_original)    
+      })
+    }
   }
   
   
