@@ -21,5 +21,6 @@ Rnosave R/06_skull_strip.R -J SS --array=28-38 --mem=20G -o eofiles/%x_%A_%a.out
 
 sbatch R/run_ct_bet_cpu.sh
 
+Rnosave R/06_plot_nifti.R -J PLOT --array=1-200 --mem=12G -o eofiles/%x_%A_%a.out -e eofiles/%x_%A_%a.err
 
-Rnosave R/08_plot_skull_strip.R -J SS --array=1-200 --mem=20G -o eofiles/%x_%A_%a.out -e eofiles/%x_%A_%a.err
+Rnosave R/08_plot_skull_strip.R -J SPLOT --array=1-200 --mem=12G -o eofiles/%x_%A_%a.out -e eofiles/%x_%A_%a.err
