@@ -48,52 +48,49 @@ plot_seg = function(
 
 iid = get_fold()
 
-# for (iid in seq(nrow(df))) {
-print(iid)
-idf = df[iid,]
-
-file_nifti = idf$file_nifti
-
-file_mask = idf$file_mask
-file_image_ss = idf$file_image_ss
-
-plot_seg(file_nifti,
-         file_mask,
-         file_image_ss)
-
-
-file_image_ss = idf$file_image_ss_original
-file_mask = idf$file_mask_original
-
-plot_seg(file_nifti,
-         file_mask,
-         file_image_ss)
-
-
-file_image_ss = idf$file_image_ss_synth
-file_mask = idf$file_mask_synth
-
-plot_seg(file_nifti,
-         file_mask,
-         file_image_ss)
-
-file_image_ss = idf$file_image_ss_hdctbet
-file_mask = idf$file_mask_hdctbet
-
-plot_seg(file_nifti,
-         file_mask,
-         file_image_ss)
-
-
-file_image_ss = idf$file_image_ss_ctbet
-file_mask = idf$file_mask_ctbet
-
-plot_seg(file_nifti,
-         file_mask,
-         file_image_ss)
-
-
-
-
-
-# }
+for (iid in seq(nrow(df))) {
+  print(iid)
+  idf = df[iid,]
+  
+  file_nifti = idf$file_nifti
+  
+  file_mask = idf$file_mask
+  file_image_ss = idf$file_image_ss
+  
+  plot_seg(file_nifti,
+           file_mask,
+           file_image_ss)
+  
+  
+  file_image_ss = idf$file_image_ss_original
+  file_mask = idf$file_mask_original
+  
+  plot_seg(file_nifti,
+           file_mask,
+           file_image_ss)
+  
+  
+  file_image_ss = idf$file_image_ss_synth
+  file_mask = idf$file_mask_synth
+  
+  plot_seg(file_nifti,
+           file_mask,
+           file_image_ss)
+  
+  file_image_ss = idf$file_image_ss_hdctbet
+  file_mask = idf$file_mask_hdctbet
+  
+  plot_seg(file_nifti,
+           file_mask,
+           file_image_ss)
+  
+  
+  file_image_ss = idf$file_image_ss_ctbet
+  file_mask = idf$file_mask_ctbet
+  
+  plot_seg(file_nifti,
+           file_mask,
+           file_image_ss)
+  
+  
+}
