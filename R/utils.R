@@ -73,3 +73,12 @@ create_nifti = function(idf) {
   }
   return(res)
 }
+
+
+
+copy_qform = function(file_nifti) {
+  tfile = tempfile(fileext = ".nii.gz")
+  file.copy(file_nifti, tfile)
+  img_run = fslr::fslorient(tfile, opts = "-copyqform2sform")
+  return(tfile)
+}

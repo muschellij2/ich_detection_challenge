@@ -101,8 +101,8 @@ for (iid in seq(nrow(df))) {
       system.file("scct_unsmooth_SS_0.01_Mask.nii.gz",
                   package = "ichseg")
     
-    try({
-      ss = CT_Skull_Strip_robust(
+    ss = try({
+      CT_Skull_Strip_robust(
         img = file_nifti,
         retimg = FALSE,
         keepmask = TRUE,
@@ -112,6 +112,19 @@ for (iid in seq(nrow(df))) {
         outfile = file_ss,
         maskfile = file_mask)
     })
+    if (inherits(ss, "try-error")) {
+      ss = try({
+        CT_Skull_Strip_robust(
+          img = file_nifti,
+          retimg = FALSE,
+          keepmask = TRUE,
+          template.file = ss.template.file,
+          template.mask = ss.template.mask,
+          # remover = "double_remove_neck",
+          outfile = file_ss,
+          maskfile = file_mask)      
+      })
+    }
   }
   
   if (!all(file.exists(c(file_ss_original, file_mask_original)))) {
@@ -138,9 +151,7 @@ for (iid in seq(nrow(df))) {
         maskfile = file_mask_synth
       )
       if (res > 0 && !file.exists(file_ss_synth)) {
-        tfile = tempfile(fileext = ".nii.gz")
-        file.copy(file_nifti, tfile)
-        img_run = fslr::fslorient(tfile, opts = "-copyqform2sform")
+        img_run = copy_qform(file_nifti)
         res = freesurfer::mri_synthstrip(
           file = img_run,
           retimg = FALSE,
