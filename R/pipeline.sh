@@ -18,3 +18,5 @@ Rnosave R/tmp_unzip.R -J UNZ --array=1-2 --mem=4G -o eofiles/%x_%A_%a.out -e eof
 
 
 Rnosave R/06_skull_strip.R -J SS --array=28-38 --mem=20G -o eofiles/%x_%A_%a.out -e eofiles/%x_%A_%a.err
+
+sbatch R/run_ct_bet_cpu.sh
