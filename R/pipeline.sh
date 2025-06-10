@@ -28,4 +28,6 @@ Rnosave R/06_get_image_dimensions.R -J DIMS --mem=12G -o eofiles/%x_%A_%a.out -e
 
 Rnosave R/08_plot_skull_strip.R -J SPLOT --array=1-200 --mem=12G -o eofiles/%x_%A_%a.out -e eofiles/%x_%A_%a.err
 
+sbatch R/hd_ct_bet.sh
+
 sbatch R/run_ct_bet_cpu.sh

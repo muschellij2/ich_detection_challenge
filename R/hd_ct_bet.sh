@@ -25,7 +25,7 @@ for ifile in $files;
 do
   bn=`basename ${ifile}`
   outfile="${outdir}/${bn}"
-  if [ ! -f ${outfile} ]; then
+  if [ ! -f ${outfile} ]; 
   then
     ./HD-CTBET/HD_CTBET/hd-ctbet -i ${ifile} -o "${outdir}/${bn}"
   else 
