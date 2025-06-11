@@ -22,6 +22,7 @@ iid = 1
 for (iid in seq(nrow(series))) {
   # print(iid)
   file_nifti = series$file_nifti[[iid]]
+  file_nifti_raw = series$file_nifti_raw[[iid]]
   idf = series$data[[iid]]
   
   if (!file.exists(file_nifti)) {
@@ -47,6 +48,31 @@ for (iid in seq(nrow(series))) {
       writenii(res, file_nifti)
     }
   }
+  
+  if (!file.exists(file_nifti_raw)) {
+    idf = idf %>% filter(id != "ID_6431af929")
+    res = create_nifti_(idf)
+    if (is.null(res)) {
+      print(iid)
+      print(file_nifti)
+      idf = idf %>% 
+        arrange(file) %>% 
+        group_by(
+          ImageOrientationPatient, 
+          ImagePositionPatient,
+          SeriesInstanceUID
+        ) %>% 
+        summarise(
+          file = file[1],
+          .groups = "drop"
+        ) 
+      res = create_nifti(idf)
+    }
+    if (!is.null(res)) {
+      writenii(res, file_nifti_raw)
+    }
+  }
+  
 }
 
 

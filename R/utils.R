@@ -74,6 +74,28 @@ create_nifti = function(idf) {
   return(res)
 }
 
+create_nifti_raw = function(idf) {
+  out = try({copy_dcm_files(idf)})
+  if (inherits(out, "try-error")) {
+    return(NULL)
+  }
+  tdir = out$outdir
+  file_df = out$file_df
+  res = try({
+    ct_dcm2nii(tdir,
+               verbose = FALSE,
+               dcm2niicmd = "dcm2niix_feb2024",
+               ignore_roi_if_multiple = TRUE,
+               fail_on_error = TRUE)
+  })
+  unlink(tdir, recursive = TRUE)
+  if (length(dim(res)) != 3 || inherits(res, "try-error")) {
+    return(NULL) 
+  }
+  return(res)
+}
+
+
 
 
 copy_qform = function(file_nifti) {
