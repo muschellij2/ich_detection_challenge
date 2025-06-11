@@ -66,8 +66,8 @@ df = df %>%
         ".nii.gz"
       )
     ),
-    file_nifti_raw = file.path(
-      here::here("data", "nifti_raw"),
+    file_nifti_uncorrected = file.path(
+      here::here("data", "nifti_uncorrected"),
       paste0(
         id_patient, "_",
         id_series, 
@@ -90,13 +90,13 @@ df = df %>%
 
 outfile = here::here("data", "series_data.rds")
 check = df %>% 
-  distinct(id_patient, id_series, file_nifti, file_nifti_raw, group) 
+  distinct(id_patient, id_series, file_nifti, file_nifti_uncorrected, group) 
 stopifnot(anyDuplicated(check$file_nifti) == 0)
-stopifnot(anyDuplicated(check$file_nifti_raw) == 0)
+stopifnot(anyDuplicated(check$file_nifti_uncorrected) == 0)
 
 
 series = df %>% 
-  nest(data = everything(), .by = c(id_patient, id_series, file_nifti, file_nifti_raw, group, fold))
+  nest(data = everything(), .by = c(id_patient, id_series, file_nifti, file_nifti_uncorrected, group, fold))
 readr::write_rds(series, outfile, compress = "xz")
 
 
