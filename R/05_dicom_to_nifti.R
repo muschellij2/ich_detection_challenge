@@ -51,7 +51,7 @@ for (iid in seq(nrow(series))) {
   
   if (!file.exists(file_nifti_uncorrected)) {
     idf = idf %>% filter(id != "ID_6431af929")
-    res = create_nifti_uncorrected(idf)
+    res = create_nifti(idf, uncorrected = TRUE)
     if (is.null(res)) {
       print(iid)
       print(file_nifti)
@@ -66,7 +66,7 @@ for (iid in seq(nrow(series))) {
           file = file[1],
           .groups = "drop"
         ) 
-      res = create_nifti(idf)
+      res = create_nifti(idf, uncorrected = TRUE)
     }
     if (!is.null(res)) {
       writenii(res, file_nifti_uncorrected)
