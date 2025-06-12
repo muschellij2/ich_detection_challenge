@@ -20,7 +20,7 @@ print(nrow(series))
 
 iid = 1
 for (iid in seq(nrow(series))) {
-  # print(iid)
+  print(iid)
   file_nifti = series$file_nifti[[iid]]
   file_nifti_uncorrected = series$file_nifti_uncorrected[[iid]]
   idf = series$data[[iid]]

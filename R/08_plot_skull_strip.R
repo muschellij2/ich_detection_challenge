@@ -6,17 +6,6 @@ source(here::here("R/utils.R"))
 file_with_ss = here::here("data", "series_filesnames.rds")
 df = readRDS(file_with_ss)
 
-endings = c("", "_synth", "_original", "_ctbet", "_hdctbet")
-all_dirs = lapply(endings, function(ending) {
-  list(
-    dir_ss = here::here("data", paste0("brain_extracted", ending)),
-    dir_mask = here::here("data", paste0("brain_mask", ending)),
-    dir_image = here::here("results", paste0("image_ss", ending))
-  )
-})
-names(all_dirs) = c("v2", "synth", "original", "ctbet", "hdctbet")
-
-
 
 plot_seg = function(
     file_nifti,
