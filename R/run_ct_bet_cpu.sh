@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=CTBET
-#SBATCH --time=4-00:00:00
+#SBATCH --time=10-00:00:00
 #SBATCH --output=CTBET_%A.out
 #SBATCH --error=CTBET_%A.err
 

@@ -20,7 +20,6 @@ df = df %>%
     file_image = file.path(dir_image, paste0(stub, ".png"))
   )
 
-
 ifold = get_fold(default = unique(df$fold))
 print(head(ifold))
 df = df %>%
