@@ -24,7 +24,7 @@ module load conda
 conda activate brainchop_env
 cd $detect
 
-files=`ls data/nifti/ID-c*.nii.gz data/nifti/ID-d*.nii.gz`
+files=`ls data/nifti/ID-0*.nii.gz data/nifti/ID-1*.nii.gz`
 ifile=${files}
 brain_outdir="data/brain_extracted_brainchop"
 mkdir -p ${brain_outdir}
