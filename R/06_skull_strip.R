@@ -17,7 +17,7 @@ if (!file.exists(file_with_ss) || rerun) {
   outfile = here::here("data", "series_data.rds")
   df = readr::read_rds(outfile)
   
-  endings = c("", "_synth", "_original", "_ctbet", "_hdctbet")
+  endings = c("", "_synth", "_original", "_ctbet", "_hdctbet", "_brainchop")
   all_dirs = lapply(endings, function(ending) {
     list(
       dir_ss = here::here("data", paste0("brain_extracted", ending)),
@@ -25,7 +25,7 @@ if (!file.exists(file_with_ss) || rerun) {
       dir_image = here::here("results", paste0("image_ss", ending))
     )
   })
-  names(all_dirs) = c("v2", "synth", "original", "ctbet", "hdctbet")
+  names(all_dirs) = c("v2", "synth", "original", "ctbet", "hdctbet", "brainchop")
   
   
   fs::dir_create(unlist(all_dirs))
@@ -50,6 +50,9 @@ if (!file.exists(file_with_ss) || rerun) {
       file_mask_ctbet = here::here(all_dirs$ctbet$dir_mask, stub),
       file_image_ss_ctbet = here::here(all_dirs$ctbet$dir_image, paste0(nii.stub(stub), ".png")),
       
+      file_ss_brainchop = here::here(all_dirs$brainchop$dir_ss, stub),
+      file_mask_brainchop = here::here(all_dirs$brainchop$dir_mask, stub),
+      file_image_ss_brainchop = here::here(all_dirs$brainchop$dir_image, paste0(nii.stub(stub), ".png")),
       
       file_ss_synth = here::here(all_dirs$synth$dir_ss, stub),
       file_mask_synth = here::here(all_dirs$synth$dir_mask, stub),

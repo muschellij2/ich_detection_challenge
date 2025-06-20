@@ -24,7 +24,8 @@ module load conda
 conda activate brainchop_env
 cd $detect
 
-files=`ls data/nifti/ID-8*.nii.gz data/nifti/ID-9*.nii.gz`
+# files=`ls data/nifti/ID-8*.nii.gz data/nifti/ID-9*.nii.gz`
+files="/dcs05/ciprian/smart/ich_detection_challenge/data/nifti/ID-e05a3ff4_ID-b1ba4ce57e.nii.gz /dcs05/ciprian/smart/ich_detection_challenge/data/nifti/ID-e056b05b_ID-bbead6f40d.nii.gz /dcs05/ciprian/smart/ich_detection_challenge/data/nifti/ID-6002581a_ID-44c601efea.nii.gz /dcs05/ciprian/smart/ich_detection_challenge/data/nifti/ID-0011dd8c_ID-3d6598aed9.nii.gz /dcs05/ciprian/smart/ich_detection_challenge/data/nifti/ID-c048f060_ID-4da5642b38.nii.gz"
 ifile=${files}
 brain_outdir="data/brain_extracted_brainchop"
 mkdir -p ${brain_outdir}

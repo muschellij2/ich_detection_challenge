@@ -87,5 +87,12 @@ for (iid in seq(nrow(df))) {
            file_mask,
            file_image_ss)
   
+  file_image_ss = idf$file_image_ss_brainchop
+  file_mask = idf$file_mask_brainchop
+  
+  plot_seg(file_nifti,
+           file_mask,
+           file_image_ss)
+  
   
 }
