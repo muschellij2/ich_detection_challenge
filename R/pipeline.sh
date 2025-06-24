@@ -23,6 +23,8 @@ Rnosave R/06_plot_nifti.R -J PLOT --array=1-200 --mem=12G -o eofiles/%x_%A_%a.ou
 Rnosave R/06_get_image_dimensions.R -J DIMS --mem=12G -o eofiles/%x_%A_%a.out -e eofiles/%x_%A_%a.err
 
 
+Rnosave R/07_template_registration.R -J DETREG --array=1-200 --mem=20G -o eofiles/%x_%A_%a.out -e eofiles/%x_%A_%a.err
+
 Rnosave R/08_plot_skull_strip.R -J SPLOT --array=1-200 --mem=12G -o eofiles/%x_%A_%a.out -e eofiles/%x_%A_%a.err
 
 sbatch R/hd_ct_bet.sh

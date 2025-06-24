@@ -17,6 +17,13 @@ print(head(ifold))
 series = series %>%
   filter(fold %in% ifold)
 print(nrow(series))
+series = series %>% 
+  mutate(
+    id = paste0(
+    id_patient, "_",
+    id_series)
+  )
+
 
 iid = 1
 for (iid in seq(nrow(series))) {

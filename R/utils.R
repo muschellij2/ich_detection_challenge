@@ -103,7 +103,7 @@ estimate_interlaced_scan = function(x) {
   expected_z = x$z[1] + (0:(nrow(x)-1))*expected_diff
   mat = abs(outer(expected_z, x$z, FUN = "-"))
   mins = apply(mat, 2, min)
-  keep = mins < median(mins) | mins < 0.01
+  keep = mins < median(mins) | mins < 0.02
   x$keep = keep
   x
 }
